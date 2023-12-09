@@ -61,6 +61,8 @@ public class ClientGUI extends JFrame {
         clientWindow.setLocation(x + indentX, y + indentY);
 
         clientWindow.setVisible(true);
+
+        server.addClient(clientWindow);
         return clientWindow;
     }
 
@@ -88,6 +90,12 @@ public class ClientGUI extends JFrame {
 
     public void appendSentMessage(String message) {
         this.messageDisplayWindowPanel.appendSentMessage(message);
+        server.clientSendMessage(message);
+
+    }
+
+    public void appendReceiveMessage(String message) {
+        this.messageDisplayWindowPanel.appendReceiveMessage(message);
     }
 
 }

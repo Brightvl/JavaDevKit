@@ -1,5 +1,8 @@
 package org.example.lesson_1.hw_1.server;
 
+import org.example.lesson_1.hw_1.client.ClientGUI;
+import org.example.lesson_1.hw_1.server.ui.ServerGUI;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,17 +13,24 @@ public class Server {
 
 
     private boolean isServerWorking;
+
     private List<User> userList;
+    private List<ClientGUI> clientGUIs;
+
+    public String message;
+
+    private ServerGUI serverGUI;
 
     public Server() {
         this.userList = new ArrayList<>();
+        this.clientGUIs = new ArrayList<>();
     }
-
-    public String allMessage;
 
 
     public void addUser(User user) {
         userList.add(user);
+        serverGUI = new ServerGUI(this);
+        serverGUI.runProgram();
 
     }
 
@@ -47,6 +57,7 @@ public class Server {
 
         if (user.getLogin().equalsIgnoreCase(login) && user.getPassword().equalsIgnoreCase(password)) {
             System.out.println("все ок");
+
             return true;
         } else {
             System.out.println("логин и пароль не верен");
@@ -65,15 +76,39 @@ public class Server {
     }
 
     public void appendToAllMessage(String message) {
-//        StringBuilder stringBuilder = new StringBuilder(allMessage);
+//        StringBuilder stringBuilder = new StringBuilder(message);
 //        stringBuilder.append("\n" + message);
 //        System.out.println(stringBuilder);
-//        this.allMessage = stringBuilder.toString();
-        allMessage = message;
+//        this.message = stringBuilder.toString();
+        this.message = message;
     }
 
     //endregion
 
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void clientSendMessage(String allMessage) {
+        this.message = allMessage;
+        serverGUI.getMessage(message);
+
+        for (ClientGUI clientGUI : clientGUIs
+        ) {
+            clientGUI.appendReceiveMessage(message);
+        }
+
+
+    }
+
+    public ServerGUI getServerGUI() {
+        return serverGUI;
+    }
+
+
+    public void addClient(ClientGUI clientGUI) {
+        clientGUIs.add(clientGUI);
+    }
 
 }

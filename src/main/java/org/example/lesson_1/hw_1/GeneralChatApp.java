@@ -4,7 +4,6 @@ package org.example.lesson_1.hw_1;
 import org.example.lesson_1.hw_1.client.ClientGUI;
 import org.example.lesson_1.hw_1.server.Server;
 import org.example.lesson_1.hw_1.server.User;
-import org.example.lesson_1.hw_1.server.ui.ServerGUI;
 
 /**
  * <p>
@@ -26,11 +25,9 @@ public class GeneralChatApp {
         server.addUser(new User("Andrei,","1234"));
         server.addUser(new User("Nikolai,","4321"));
 
-        ServerGUI serverGUI = new ServerGUI(server);
-        serverGUI.runProgram();
 
-        ClientGUI.createClient(server, serverGUI.getLocation(), -serverGUI.getWidth(), 0);
-//        ClientGUI.createClient(server, serverGUI.getLocation(), serverGUI.getWidth(), 0);
+        ClientGUI.createClient(server, server.getServerGUI().getLocation(), -server.getServerGUI().getWidth(), 0);
+        ClientGUI.createClient(server, server.getServerGUI().getLocation(), server.getServerGUI().getWidth(), 0);
 
     }
 

@@ -45,6 +45,8 @@ public class MessageDisplayWindowPanel extends JPanel {
 
 
 
+
+
     // Метод для отображения сообщения
     public void appendSentMessage(String message) {
         String tempMessage = message.trim();

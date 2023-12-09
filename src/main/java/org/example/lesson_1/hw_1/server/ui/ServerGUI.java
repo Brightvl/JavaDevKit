@@ -109,4 +109,8 @@ public class ServerGUI extends JFrame {
     }
 
 
+    public void getMessage(String message) {
+        serverLog.addLogMessage(message);
+
+    }
 }
