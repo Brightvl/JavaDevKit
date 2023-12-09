@@ -1,6 +1,10 @@
 package org.example.lesson_1.hw_1;
 
-import org.example.lesson_1.hw_1.server.ServerWindow;
+
+import org.example.lesson_1.hw_1.client.ClientGUI;
+import org.example.lesson_1.hw_1.server.Server;
+import org.example.lesson_1.hw_1.server.User;
+import org.example.lesson_1.hw_1.server.ui.ServerGUI;
 
 /**
  * <p>
@@ -16,10 +20,18 @@ import org.example.lesson_1.hw_1.server.ServerWindow;
  *     4. При запуске клиента чата заполнять поле истории из файла, если он существует. Обратите внимание, что чаще всего
  * история сообщений хранится на сервере и заполнение истории чата лучше делать при соединении с сервером, а не при открытии окна клиента.
  */
-public class Main {
+public class GeneralChatApp {
     public static void main(String[] args) {
-        ServerWindow server = new ServerWindow();
-        server.startServer();
+        Server server = new Server();
+        server.addUser(new User("Andrei,","1234"));
+        server.addUser(new User("Nikolai,","4321"));
+
+        ServerGUI serverGUI = new ServerGUI(server);
+        serverGUI.runProgram();
+
+        ClientGUI.createClient(server, serverGUI.getLocation(), -serverGUI.getWidth(), 0);
+//        ClientGUI.createClient(server, serverGUI.getLocation(), serverGUI.getWidth(), 0);
+
     }
 
 

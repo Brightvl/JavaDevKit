@@ -28,7 +28,7 @@ public class ChatServerControl extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(500, 700);
-        setTitle("ServerWindow Control");
+        setTitle("ServerGUI Control");
         setVisible(true);
 
         btnStart.addActionListener(new ActionListener() {

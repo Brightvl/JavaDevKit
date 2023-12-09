@@ -1,24 +1,32 @@
-package org.example.lesson_1.hw_1.server;
+package org.example.lesson_1.hw_1.server.ui;
+
+import org.example.lesson_1.hw_1.server.Server;
+import org.example.lesson_1.hw_1.server.ui.widgets.ServerLogPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ServerWindow extends JFrame {
+public class ServerGUI extends JFrame {
 
-    private boolean isServerWorking;
+    private Server server;
 
     // размеры окна
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
+    // виджеты
     private JButton serverRun;
     private JButton serverStop;
+    private ServerLogPanel serverLog; // окно логирования
 
-    ServerLog serverLog; // окно логирования
 
-    public ServerWindow() {
+    //region Конструктор
+    public ServerGUI(Server server) {
+        this.server = server;
+        this.serverLog = new ServerLogPanel(this);
+
         //region параметры окна
         setTitle("Server ver. 0.00000000000001"); // название окна
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,9 +35,9 @@ public class ServerWindow extends JFrame {
         setResizable(false); // запрет на растягивание окна
         //endregion
 
-        this.serverLog = new ServerLog(this);
 
         //region расположение виджетов
+
         JPanel mainPanel = new JPanel(new GridLayout(0, 2));
         // создание кнопок
         mainPanel.add(createServerRunButton());
@@ -37,16 +45,12 @@ public class ServerWindow extends JFrame {
         // расстановка
         add(serverLog);
         add(mainPanel, BorderLayout.SOUTH);
+
         //endregion
 
     }
+    //endregion
 
-    /**
-     * Для включения окна сервера
-     */
-    public void startServer() {
-        super.setVisible(true);
-    }
 
     /**
      * Создает кнопку запуска сервера
@@ -58,14 +62,12 @@ public class ServerWindow extends JFrame {
         serverRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (!isServerWorking) {
+                if (!server.isServerWorking()) {
                     serverLog.addLogMessage("Server launched");
                 } else {
                     serverLog.addLogMessage("Server already run");
                 }
-                isServerWorking = true;
-
+                server.setServerWorking(true);
 
             }
         });
@@ -84,13 +86,27 @@ public class ServerWindow extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                serverLog.addLogMessage("Server stopped");
-                isServerWorking = false;
-                System.exit(0);
-
+                exitProgram();
             }
         });
         return serverStop;
     }
+
+
+    /**
+     * Запускает GUi
+     */
+    public void runProgram() {
+        super.setVisible(true);
+    }
+    /**
+     * Производит действия для закрытия программы
+     */
+    private void exitProgram() {
+        serverLog.addLogMessage("Server stopped");
+        server.setServerWorking(false);
+        System.exit(0);
+    }
+
 
 }

@@ -66,7 +66,7 @@ public class ChatClient extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(500, 700);
-        setTitle("Chat Client");
+        setTitle("Chat User");
         setVisible(true);
 
         loadChatHistory();
