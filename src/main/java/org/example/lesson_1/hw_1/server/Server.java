@@ -24,14 +24,15 @@ public class Server {
     public Server() {
         this.userList = new ArrayList<>();
         this.clientGUIs = new ArrayList<>();
+
+        // todo сервер должен знать о клиентах после авторизации
+        serverGUI = new ServerGUI(this);
+        serverGUI.runProgram();
     }
 
 
     public void addUser(User user) {
         userList.add(user);
-        serverGUI = new ServerGUI(this);
-        serverGUI.runProgram();
-
     }
 
     //region геттеры сеттеры
@@ -44,6 +45,8 @@ public class Server {
     }
 
     public boolean checkVerification(String ip, String port, String login, String password) {
+
+
         if (!ip.equals(Server.ip)) {
             System.out.println("ip не найден");
             return false;
@@ -90,13 +93,16 @@ public class Server {
         return message;
     }
 
-    public void clientSendMessage(String allMessage) {
+    public void clientSendMessage(String allMessage, String id) {
+
         this.message = allMessage;
-        serverGUI.getMessage(message);
+        serverGUI.getMessage(message, id);
 
         for (ClientGUI clientGUI : clientGUIs
         ) {
-            clientGUI.appendReceiveMessage(message);
+            if (!clientGUI.getId().equals(id)) {
+                clientGUI.appendReceiveMessage(message, id);
+            }
         }
 
 

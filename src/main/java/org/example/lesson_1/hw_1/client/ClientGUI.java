@@ -27,8 +27,10 @@ public class ClientGUI extends JFrame {
     private JPanel mainPanel;
     private Server server;
 
+    private String id;
 
     private ClientGUI(Server server) {
+
         this.server = server;
         this.isAuthorized = false;
         paramWindow();
@@ -38,12 +40,15 @@ public class ClientGUI extends JFrame {
         this.clientGUILogin = new ClientGUILoginPanel(this);
         this.mainPanel.add(clientGUILogin, BorderLayout.NORTH);
 
+        add(mainPanel);
+    }
+
+    private void createChat() {
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel();
         this.mainPanel.add(messageDisplayWindowPanel, BorderLayout.CENTER);
 
 
         add(mainPanel);
-
 
         //todo пока не залогинились поставить запрет
         this.sendMessagePanel = new SendMessagePanel(this);
@@ -54,8 +59,11 @@ public class ClientGUI extends JFrame {
     /**
      * Фабричный метод для создания объекта и отображения окна
      */
-    public static ClientGUI createClient(Server server, Point pointWindow, int indentX, int indentY) {
+    public static ClientGUI createClient(Server server, String id, Point pointWindow, int indentX, int indentY) {
         ClientGUI clientWindow = new ClientGUI(server);
+
+        clientWindow.id = id;
+
         int x = (int) pointWindow.getX();
         int y = (int) pointWindow.getY();
         clientWindow.setLocation(x + indentX, y + indentY);
@@ -84,18 +92,27 @@ public class ClientGUI extends JFrame {
 
 
     public boolean checkVerification(String ip, String port, String login, String password) {
-        return server.checkVerification(ip, port, login, password);
+        //todo продолжить отсюда чтобы отображалось поле
+        if (server.checkVerification(ip, port, login, password)) {
+            createChat();
+        }
+        return false;
     }
 
 
     public void appendSentMessage(String message) {
-        this.messageDisplayWindowPanel.appendSentMessage(message);
-        server.clientSendMessage(message);
+
+        this.messageDisplayWindowPanel.appendSentMessage(message,id);
+        server.clientSendMessage(message,id);
 
     }
 
-    public void appendReceiveMessage(String message) {
-        this.messageDisplayWindowPanel.appendReceiveMessage(message);
+    public void appendReceiveMessage(String message,String id) {
+
+        this.messageDisplayWindowPanel.appendReceiveMessage(message,id);
     }
 
+    public String getId() {
+        return id;
+    }
 }

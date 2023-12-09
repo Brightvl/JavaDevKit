@@ -48,19 +48,19 @@ public class MessageDisplayWindowPanel extends JPanel {
 
 
     // Метод для отображения сообщения
-    public void appendSentMessage(String message) {
+    public void appendSentMessage(String message, String id) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            sendTextArea.append(message + "\n");
+            sendTextArea.append(id + ": " + message + "\n");
         }
     }
 
 
     // Метод для отображения сообщения
-    public void appendReceiveMessage(String message) {
+    public void appendReceiveMessage(String message, String id) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            receiveTextArea.append(message + "\n");
+            receiveTextArea.append(id + ": " + message + "\n");
         }
     }
 
