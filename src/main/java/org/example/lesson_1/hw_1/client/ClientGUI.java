@@ -25,14 +25,21 @@ public class ClientGUI extends JFrame {
 
     //
     private JPanel mainPanel;
+
+    // клиент знает про сервер
     private Server server;
 
     private String id;
 
+    /**
+     * Конструктор
+     * @param server
+     */
     private ClientGUI(Server server) {
-
         this.server = server;
         this.isAuthorized = false;
+
+        // задаем параметры окна
         paramWindow();
 
         mainPanel = new JPanel(new BorderLayout(2, 1));
@@ -41,13 +48,16 @@ public class ClientGUI extends JFrame {
         this.mainPanel.add(clientGUILogin, BorderLayout.NORTH);
 
         add(mainPanel);
+
+
     }
 
+    /**
+     * Создание окна чата
+     */
     private void createChat() {
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel();
         this.mainPanel.add(messageDisplayWindowPanel, BorderLayout.CENTER);
-
-
         add(mainPanel);
 
         //todo пока не залогинились поставить запрет
@@ -75,22 +85,24 @@ public class ClientGUI extends JFrame {
     }
 
     /**
-     * Задает параметры окна
+     * Задает параметры клиентского окна
      */
     private void paramWindow() {
-
-
-        //region параметры окна
-
         setTitle("General chat"); // название окна
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setResizable(false); // запрет на растягивание окна
-
-        //endregion
     }
 
 
+    /**
+     * Проверяет верификацию введенных данных пользователя у сервера
+     * @param ip
+     * @param port
+     * @param login
+     * @param password
+     * @return
+     */
     public boolean checkVerification(String ip, String port, String login, String password) {
         //todo продолжить отсюда чтобы отображалось поле
         if (server.checkVerification(ip, port, login, password)) {

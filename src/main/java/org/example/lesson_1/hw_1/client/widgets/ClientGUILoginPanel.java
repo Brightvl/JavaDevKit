@@ -14,13 +14,16 @@ public class ClientGUILoginPanel extends JPanel {
 
     private boolean isVisible;
 
-    private String ip;
+    // введенные данные сервера
+    private String ipAddress;
     private String port;
 
+    // введенные данные пользователя
     private String login;
     private String password;
 
-    private JTextField ipTextField;
+    // поля с данными
+    private JTextField ipAddressTextField;
     private JTextField portTextField;
     private JTextField loginTextField;
     private JTextField passwordTextField;
@@ -29,37 +32,37 @@ public class ClientGUILoginPanel extends JPanel {
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
+    // для взаимодействия с main основным клиентом
     ClientGUI clientGUI;
 
     public ClientGUILoginPanel(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
         this.isVisible = true;
-
-
-        //сетка фрейма
+        //создаем поля ввода параметров пользователя
         createField();
-
-
     }
 
     /**
      * Создает поле для авторизации
      *
-     * @return компонент панель
+     * @return поле ввода данных
      */
     private Component createField() {
+        // панель параметров сервера
         JPanel serverPanel = new JPanel(new GridLayout(1, 2));
-        this.ipTextField = (JTextField) createFieldIp();
-        serverPanel.add(ipTextField);
+        this.ipAddressTextField = (JTextField) createFieldIp();
+        serverPanel.add(ipAddressTextField);
         this.portTextField = (JTextField) createFieldPort();
         serverPanel.add(portTextField);
 
+        // панель параметров пользователя
         JPanel authorizationPanel = new JPanel(new GridLayout(1, 2));
         this.loginTextField = (JTextField) createFieldLogin();
         authorizationPanel.add(loginTextField);
         this.passwordTextField = (JTextField) createFieldPassword();
         authorizationPanel.add(passwordTextField);
 
+        // компоновщик
         setLayout(new BorderLayout());
 
         add(serverPanel, BorderLayout.NORTH);
@@ -75,25 +78,25 @@ public class ClientGUILoginPanel extends JPanel {
      * @return Component
      */
     private Component createFieldIp() {
-        JTextField ip = new JTextField();
-        ip.addFocusListener(new FocusListener() {
+        JTextField ipAddress = new JTextField();
+        ipAddress.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
                 // При получении фокуса, если текст совпадает с placeholder, очищаем его
-                if (ip.getText().equals("ip address")) {
-                    ip.setText("");
+                if (ipAddress.getText().equals("Ip address")) {
+                    ipAddress.setText("");
                 }
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 // При потере фокуса, если текст пустой, устанавливаем placeholder
-                if (ip.getText().isEmpty()) {
-                    ip.setText("ip address");
+                if (ipAddress.getText().isEmpty()) {
+                    ipAddress.setText("Ip address");
                 }
             }
         });
-        return ip;
+        return ipAddress;
     }
 
     /**
@@ -107,7 +110,7 @@ public class ClientGUILoginPanel extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 // При получении фокуса, если текст совпадает с placeholder, очищаем его
-                if (port.getText().equals("port")) {
+                if (port.getText().equals("Port")) {
                     port.setText("");
                 }
             }
@@ -116,7 +119,7 @@ public class ClientGUILoginPanel extends JPanel {
             public void focusLost(FocusEvent e) {
                 // При потере фокуса, если текст пустой, устанавливаем placeholder
                 if (port.getText().isEmpty()) {
-                    port.setText("port");
+                    port.setText("Port");
                 }
             }
         });
@@ -188,17 +191,15 @@ public class ClientGUILoginPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Получаем значения из текстовых полей и сохраняем в переменные
-                ip = ipTextField.getText();
+                ipAddress = ipAddressTextField.getText();
                 port = portTextField.getText();
                 login = loginTextField.getText();
                 password = passwordTextField.getText();
-                clientGUI.checkVerification(ip, port, login, password);
+                clientGUI.checkVerification(ipAddress, port, login, password);
             }
         });
         return authorizationButton;
     }
-
-
 }
 
 

@@ -4,16 +4,20 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Панель отображения диалога
+ * Панель отображения чата
  */
 public class MessageDisplayWindowPanel extends JPanel {
 
+    // виджеты
     private JScrollPane scrollPane;
     private JTextArea sendTextArea;
     private JTextArea receiveTextArea;
 
+    /**
+     * Конструктор
+     */
     public MessageDisplayWindowPanel() {
-
+        // компоновщик
         setLayout(new BorderLayout(2, 1));
 
         // для отображения исходящих сообщений
@@ -38,17 +42,18 @@ public class MessageDisplayWindowPanel extends JPanel {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         // Добавляем виджеты
-
         add((new JLabel("User ", JLabel.CENTER)), BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
     }
 
 
-
-
-
-    // Метод для отображения сообщения
+    /**
+     * Метод для вывода сообщения в поле отправленные сообщения
+     * @param message
+     * @param id
+     */
     public void appendSentMessage(String message, String id) {
+        //todo убрать ip
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
             sendTextArea.append(id + ": " + message + "\n");
