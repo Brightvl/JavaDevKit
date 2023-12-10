@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-public class ClientGUILoginPanel extends JPanel {
+public class VerificationPanel extends JPanel {
 
     private boolean isVisible;
 
@@ -33,9 +33,9 @@ public class ClientGUILoginPanel extends JPanel {
     private static final int HEIGHT = 507;
 
     // для взаимодействия с main основным клиентом
-    ClientGUI clientGUI;
+    private ClientGUI clientGUI;
 
-    public ClientGUILoginPanel(ClientGUI clientGUI) {
+    public VerificationPanel(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
         this.isVisible = true;
         //создаем поля ввода параметров пользователя

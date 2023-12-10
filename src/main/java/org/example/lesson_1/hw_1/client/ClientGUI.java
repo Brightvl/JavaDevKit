@@ -1,15 +1,19 @@
 package org.example.lesson_1.hw_1.client;
 
 
-import org.example.lesson_1.hw_1.client.widgets.ClientGUILoginPanel;
 import org.example.lesson_1.hw_1.client.widgets.MessageDisplayWindowPanel;
+import org.example.lesson_1.hw_1.client.widgets.NotificationPane;
 import org.example.lesson_1.hw_1.client.widgets.SendMessagePanel;
+import org.example.lesson_1.hw_1.client.widgets.VerificationPanel;
 import org.example.lesson_1.hw_1.server.Server;
+import org.example.lesson_1.hw_1.server.User;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ClientGUI extends JFrame {
+
+    private User user;
 
     // размеры окна
     private static final int WIDTH = 400;
@@ -19,7 +23,8 @@ public class ClientGUI extends JFrame {
     private boolean isAuthorized;
 
     //widgets
-    private ClientGUILoginPanel clientGUILogin;
+    private VerificationPanel verificationPanel;
+    private NotificationPane notificationPane;
     private MessageDisplayWindowPanel messageDisplayWindowPanel;
     private SendMessagePanel sendMessagePanel;
 
@@ -29,7 +34,6 @@ public class ClientGUI extends JFrame {
     // клиент знает про сервер
     private Server server;
 
-    private String id;
 
     /**
      * Конструктор
@@ -39,49 +43,60 @@ public class ClientGUI extends JFrame {
         this.server = server;
         this.isAuthorized = false;
 
+        this.notificationPane = new NotificationPane();
+
+        this.messageDisplayWindowPanel = new MessageDisplayWindowPanel(this);
+
         // задаем параметры окна
         paramWindow();
+        //выводит панель верификации
+        createVerificationPanel();
+    }
 
-        mainPanel = new JPanel(new BorderLayout(2, 1));
 
-        this.clientGUILogin = new ClientGUILoginPanel(this);
-        this.mainPanel.add(clientGUILogin, BorderLayout.NORTH);
+    /**
+     * Создает поле для ввода верификационных параметров пользователя
+     */
+    private void createVerificationPanel() {
+        this.mainPanel = new JPanel(new BorderLayout(2, 1));
+        this.verificationPanel = new VerificationPanel(this);
+        this.mainPanel.add(verificationPanel, BorderLayout.NORTH);
 
         add(mainPanel);
-
-
     }
 
     /**
      * Создание окна чата
      */
     private void createChat() {
-        this.messageDisplayWindowPanel = new MessageDisplayWindowPanel();
+        this.mainPanel.removeAll(); // Очищаем текущие компоненты
         this.mainPanel.add(messageDisplayWindowPanel, BorderLayout.CENTER);
         add(mainPanel);
 
-        //todo пока не залогинились поставить запрет
         this.sendMessagePanel = new SendMessagePanel(this);
         add(sendMessagePanel, BorderLayout.SOUTH);
+
+        revalidate(); // Обновляем компоненты окна
+        repaint();
     }
 
 
     /**
      * Фабричный метод для создания объекта и отображения окна
      */
-    public static ClientGUI createClient(Server server, String id, Point pointWindow, int indentX, int indentY) {
-        ClientGUI clientWindow = new ClientGUI(server);
+    public static ClientGUI createClient(Server server, Point pointWindow, int indentX, int indentY) {
+        // Создаем новое окно клиента
+        ClientGUI clientGUI = new ClientGUI(server);
 
-        clientWindow.id = id;
-
+        // сдвиг окна клиента относительно координат
         int x = (int) pointWindow.getX();
         int y = (int) pointWindow.getY();
-        clientWindow.setLocation(x + indentX, y + indentY);
+        clientGUI.setLocation(x + indentX, y + indentY);
 
-        clientWindow.setVisible(true);
+        clientGUI.setVisible(true);
 
-        server.addClient(clientWindow);
-        return clientWindow;
+        server.addClient(clientGUI);
+        return clientGUI;
     }
 
     /**
@@ -104,27 +119,65 @@ public class ClientGUI extends JFrame {
      * @return
      */
     public boolean checkVerification(String ip, String port, String login, String password) {
-        //todo продолжить отсюда чтобы отображалось поле
-        if (server.checkVerification(ip, port, login, password)) {
-            createChat();
-        }
+        if (server.isServerWorking()) {
+            int verificationLog = server.checkVerification(ip, port, login, password);
+            switch (verificationLog) {
+                case 1 -> {
+                    System.out.println("Ip address не найден");
+                    return false;
+                }
+                case 2 -> {
+                    System.out.println("Неверно указанный порт");
+                    return false;
+                }
+                case 3 -> {
+                    System.out.println("Сначала введен логин и пароль");
+                    return false;
+                }
+                case 4 -> {
+                    System.out.println("Логин или пароль не верен");
+                    return false;
+                }
+                default -> {
+                    this.user = server.getUser();
+                    createChat();
+                    return true;
+                }
+            }
+        } else System.out.println("Сервер не запущен");
         return false;
     }
 
+    /**
+     * Сохраняет сообщение на сервере
+     * @param message сообщение
+     */
+    public void appendUserMessageToServer(String message) {
+        server.appendUserMessageToServer(user, message);
+        appendSentMessage(message);
+    }
 
+    /**
+     * Добавляет сообщение полученное от пользователя в поле исходящие
+     *
+     * @param message сообщение
+     */
     public void appendSentMessage(String message) {
-
-        this.messageDisplayWindowPanel.appendSentMessage(message,id);
-        server.clientSendMessage(message,id);
-
+        String sendMessage = user.getLogin() + ": "+ message;
+        this.messageDisplayWindowPanel.appendSentMessage(sendMessage);
     }
 
-    public void appendReceiveMessage(String message,String id) {
 
-        this.messageDisplayWindowPanel.appendReceiveMessage(message,id);
+    /**
+     * Добавляет сообщение полученное от пользователя в поле входящие
+     *
+     * @param message входящее сообщение
+     */
+    public void appendReceiveMessage(User user, String message) {
+        this.messageDisplayWindowPanel.appendReceiveMessage(user.getLogin() + ": " + message);
     }
 
-    public String getId() {
-        return id;
+    public User getUser() {
+        return user;
     }
 }

@@ -1,10 +1,12 @@
 package org.example.lesson_1.hw_1.client.widgets;
 
+import org.example.lesson_1.hw_1.client.ClientGUI;
+
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Панель отображения чата
+ * Панель отображения сообщения чата
  */
 public class MessageDisplayWindowPanel extends JPanel {
 
@@ -12,11 +14,13 @@ public class MessageDisplayWindowPanel extends JPanel {
     private JScrollPane scrollPane;
     private JTextArea sendTextArea;
     private JTextArea receiveTextArea;
+    private ClientGUI clientGUI;
 
     /**
      * Конструктор
      */
-    public MessageDisplayWindowPanel() {
+    public MessageDisplayWindowPanel(ClientGUI clientGUI) {
+        this.clientGUI = clientGUI;
         // компоновщик
         setLayout(new BorderLayout(2, 1));
 
@@ -42,32 +46,31 @@ public class MessageDisplayWindowPanel extends JPanel {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         // Добавляем виджеты
-        add((new JLabel("User ", JLabel.CENTER)), BorderLayout.NORTH);
+        add((new JLabel("General chat", JLabel.CENTER)), BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
     }
 
 
     /**
      * Метод для вывода сообщения в поле отправленные сообщения
-     * @param message
-     * @param id
+     * @param message отправленное сообщение
      */
-    public void appendSentMessage(String message, String id) {
-        //todo убрать ip
+    public void appendSentMessage(String message) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            sendTextArea.append(id + ": " + message + "\n");
+            sendTextArea.append(message + "\n");
         }
     }
 
-
-    // Метод для отображения сообщения
-    public void appendReceiveMessage(String message, String id) {
+    /**
+     * Метод для отображения принятого сообщения в общем чате
+     * @param message принятое сообщение
+     */
+    public void appendReceiveMessage(String message) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            receiveTextArea.append(id + ": " + message + "\n");
+            receiveTextArea.append(message + "\n");
         }
     }
-
 
 }

@@ -1,6 +1,7 @@
 package org.example.lesson_1.hw_1.server.ui;
 
 import org.example.lesson_1.hw_1.server.Server;
+import org.example.lesson_1.hw_1.server.User;
 import org.example.lesson_1.hw_1.server.ui.widgets.ServerLogPanel;
 
 import javax.swing.*;
@@ -63,6 +64,7 @@ public class ServerGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!server.isServerWorking()) {
+                    server.setServerWorking(true);
                     serverLog.addLogMessage("Server launched");
                 } else {
                     serverLog.addLogMessage("Server already run");
@@ -108,9 +110,17 @@ public class ServerGUI extends JFrame {
         System.exit(0);
     }
 
+    /**
+     * Получает сообщения от из сервера
+     * @param message полученное сообщение
+     */
+    public void getServerMessage(String message) {
+        serverLog.addLogMessage(message);
 
-    public void getMessage(String message, String id) {
-        serverLog.addLogMessage(id + ": " + message);
+    }
 
+
+    public void appendMessageToServerLog(User user, String message) {
+        getServerMessage("user " + user.getLogin() + " wrote " + message + " in general chat");
     }
 }

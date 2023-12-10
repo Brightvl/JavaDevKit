@@ -22,14 +22,12 @@ import org.example.lesson_1.hw_1.server.User;
 public class GeneralChatApp {
     public static void main(String[] args) {
         Server server = new Server();
-        server.addUser(new User("Andrei,","1234"));
-        server.addUser(new User("Nikolai,","4321"));
+        server.addUser(new User("Andrei","1234"));
+        server.addUser(new User("Nikolai","4321"));
 
 
-        ClientGUI.createClient(server,"1", server.getServerGUI().getLocation(), -server.getServerGUI().getWidth(), 0);
-        ClientGUI.createClient(server, "2", server.getServerGUI().getLocation(), server.getServerGUI().getWidth(), 0);
+        ClientGUI.createClient(server, server.getServerGUI().getLocation(), -server.getServerGUI().getWidth(), 0);
+        ClientGUI.createClient(server, server.getServerGUI().getLocation(), server.getServerGUI().getWidth(), 0);
 
     }
-
-
 }

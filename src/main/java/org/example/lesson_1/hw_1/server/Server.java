@@ -8,24 +8,24 @@ import java.util.List;
 
 public class Server {
 
-    private static String ip = "1111";
+    private static String ipAddress = "1111";
     private static String port = "8888";
-
 
     private boolean isServerWorking;
 
     private List<User> userList;
     private List<ClientGUI> clientGUIs;
 
-    public String message;
+    public String chatMessage;
 
     private ServerGUI serverGUI;
+    private User user;
 
     public Server() {
+        this.isServerWorking = false;
         this.userList = new ArrayList<>();
         this.clientGUIs = new ArrayList<>();
 
-        // todo сервер должен знать о клиентах после авторизации
         serverGUI = new ServerGUI(this);
         serverGUI.runProgram();
     }
@@ -35,7 +35,7 @@ public class Server {
         userList.add(user);
     }
 
-    //region геттеры сеттеры
+
     public boolean isServerWorking() {
         return isServerWorking;
     }
@@ -44,69 +44,49 @@ public class Server {
         isServerWorking = serverWorking;
     }
 
-    public boolean checkVerification(String ip, String port, String login, String password) {
+    public int checkVerification(String ipAddress, String port, String login, String password) {
+        if (!ipAddress.equals(Server.ipAddress)) return 1;
+        if (!port.equals(Server.port)) return 2;
 
+        this.user = findByLogin(login);
 
-        if (!ip.equals(Server.ip)) {
-            System.out.println("ip не найден");
-            return false;
+        if (user == null) {
+            return 3;
         }
-        if (!port.equals(Server.port)) {
-            System.out.println("порт не найден");
-            return false;
+        if (!(user.getLogin().equalsIgnoreCase(login) && user.getPassword().equalsIgnoreCase(password))) {
+            return 4;
         }
-
-        User user = new User("andrei", "1234");
-
-        if (user.getLogin().equalsIgnoreCase(login) && user.getPassword().equalsIgnoreCase(password)) {
-            System.out.println("все ок");
-
-            return true;
-        } else {
-            System.out.println("логин и пароль не верен");
-            return false;
-        }
+        appendMessageInLogServerGUI("User verification " + login + " was successful");
+        return 0;
     }
 
     private User findByLogin(String login) {
         for (User user : userList
         ) {
-            if (user.getLogin().equals(login)) {
+            if (user.getLogin().equalsIgnoreCase(login)) {
                 return user;
             }
         }
         return null;
     }
 
-    public void appendToAllMessage(String message) {
-//        StringBuilder stringBuilder = new StringBuilder(message);
-//        stringBuilder.append("\n" + message);
-//        System.out.println(stringBuilder);
-//        this.message = stringBuilder.toString();
-        this.message = message;
-    }
 
-    //endregion
-
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void clientSendMessage(String allMessage, String id) {
-
-        this.message = allMessage;
-        serverGUI.getMessage(message, id);
-
+    /**
+     * Получает сообщение отправленное клиентом и добавляет его в общий чат
+     *
+     * @param message отправленное клиентом сообщение
+     */
+    public void appendClientSentMessageToGeneralChat(User user, String message) {
         for (ClientGUI clientGUI : clientGUIs
         ) {
-            if (!clientGUI.getId().equals(id)) {
-                clientGUI.appendReceiveMessage(message, id);
-            }
+            clientGUI.appendReceiveMessage(user, message);
         }
-
-
     }
+
+    private void appendMessageToServerLog(User user, String message) {
+        serverGUI.appendMessageToServerLog(user, message);
+    }
+
 
     public ServerGUI getServerGUI() {
         return serverGUI;
@@ -117,4 +97,18 @@ public class Server {
         clientGUIs.add(clientGUI);
     }
 
+    public void appendMessageInLogServerGUI(String message) {
+        serverGUI.getServerMessage(message);
+    }
+
+    public void appendUserMessageToServer(User user, String message) {
+        this.chatMessage = message;
+        this.user = user;
+        appendClientSentMessageToGeneralChat(user, chatMessage);
+        appendMessageToServerLog(user, message);
+    }
+
+    public User getUser() {
+        return user;
+    }
 }

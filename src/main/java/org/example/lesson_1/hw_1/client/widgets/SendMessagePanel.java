@@ -15,12 +15,11 @@ import java.awt.event.KeyEvent;
  */
 public class SendMessagePanel extends JPanel {
 
-
-
-    private JTextField textInputPanel; // для однострочного ввода сообщения(чтобы не было бага с размером окна)
+    // JTextField для однострочного ввода сообщения(чтобы не было бага с размером окна)
+    private JTextField textInputPanel;
 
     //mainFrame
-    ClientGUI clientGUI;
+    private ClientGUI clientGUI;
 
     //Widgets
     private JButton sendMessageButton;
@@ -44,11 +43,11 @@ public class SendMessagePanel extends JPanel {
      * @return компонент текстовое поле
      */
     private Component createTextInputArea() {
-        textInputPanel = new JTextField();
-        textInputPanel.setEditable(true);
+        this.textInputPanel = new JTextField();
+        this.textInputPanel.setEditable(true);
 
         // Добавляем KeyListener к textInputPanel для обработки нажатия клавиши Enter
-        textInputPanel.addKeyListener(new KeyAdapter() {
+        this.textInputPanel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -64,9 +63,9 @@ public class SendMessagePanel extends JPanel {
      * @return
      */
     private Component createSendMessageButton() {
-        sendMessageButton = new JButton("Send");
+        this.sendMessageButton = new JButton("Send");
 
-        sendMessageButton.addActionListener(new ActionListener() {
+        this.sendMessageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sendMessage();
@@ -76,20 +75,14 @@ public class SendMessagePanel extends JPanel {
     }
 
 
-
     /**
      * Метод для отправки сообщения
      */
     private void sendMessage() {
-        sendMessage = textInputPanel.getText();
-
+        // получаем текст с поля ввода сообщения
+        this.sendMessage = textInputPanel.getText();
         // Очищаем текстовое поле
-        textInputPanel.setText("");
-
-        clientGUI.appendSentMessage(sendMessage.trim());
-
-
+        this.textInputPanel.setText("");
+        this.clientGUI.appendUserMessageToServer(sendMessage.trim());
     }
-
-
 }
