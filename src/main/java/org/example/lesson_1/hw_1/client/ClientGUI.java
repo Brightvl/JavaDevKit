@@ -2,7 +2,6 @@ package org.example.lesson_1.hw_1.client;
 
 
 import org.example.lesson_1.hw_1.client.widgets.MessageDisplayWindowPanel;
-import org.example.lesson_1.hw_1.client.widgets.NotificationPane;
 import org.example.lesson_1.hw_1.client.widgets.SendMessagePanel;
 import org.example.lesson_1.hw_1.client.widgets.VerificationPanel;
 import org.example.lesson_1.hw_1.server.Server;
@@ -24,7 +23,7 @@ public class ClientGUI extends JFrame {
 
     //widgets
     private VerificationPanel verificationPanel;
-    private NotificationPane notificationPane;
+
     private MessageDisplayWindowPanel messageDisplayWindowPanel;
     private SendMessagePanel sendMessagePanel;
 
@@ -43,7 +42,6 @@ public class ClientGUI extends JFrame {
         this.server = server;
         this.isAuthorized = false;
 
-        this.notificationPane = new NotificationPane();
 
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel(this);
 
@@ -62,11 +60,12 @@ public class ClientGUI extends JFrame {
         this.verificationPanel = new VerificationPanel(this);
         this.mainPanel.add(verificationPanel, BorderLayout.NORTH);
 
+
         add(mainPanel);
     }
 
     /**
-     * Создание окна чата
+     * Создание окна чата и ввода сообщения
      */
     private void createChat() {
         this.mainPanel.removeAll(); // Очищаем текущие компоненты
@@ -112,30 +111,30 @@ public class ClientGUI extends JFrame {
 
     /**
      * Проверяет верификацию введенных данных пользователя у сервера
-     * @param ip
-     * @param port
-     * @param login
-     * @param password
-     * @return
+     * @param ip Ip адрес
+     * @param port порт
+     * @param login логин
+     * @param password пароль
+     * @return true если авторизация прошла успешно
      */
     public boolean checkVerification(String ip, String port, String login, String password) {
         if (server.isServerWorking()) {
             int verificationLog = server.checkVerification(ip, port, login, password);
             switch (verificationLog) {
                 case 1 -> {
-                    System.out.println("Ip address не найден");
+                    JOptionPane.showMessageDialog(this, "Ip адрес не найден");
                     return false;
                 }
                 case 2 -> {
-                    System.out.println("Неверно указанный порт");
+                    JOptionPane.showMessageDialog(this, "Неверно указанный порт");
                     return false;
                 }
                 case 3 -> {
-                    System.out.println("Сначала введен логин и пароль");
+                    JOptionPane.showMessageDialog(this, "Для авторизации введите логин и пароль");
                     return false;
                 }
                 case 4 -> {
-                    System.out.println("Логин или пароль не верен");
+                    JOptionPane.showMessageDialog(this, "Не верный логин или пароль");
                     return false;
                 }
                 default -> {
@@ -144,7 +143,7 @@ public class ClientGUI extends JFrame {
                     return true;
                 }
             }
-        } else System.out.println("Сервер не запущен");
+        } else JOptionPane.showMessageDialog(this, "Сервер не запущен");
         return false;
     }
 
@@ -177,7 +176,12 @@ public class ClientGUI extends JFrame {
         this.messageDisplayWindowPanel.appendReceiveMessage(user.getLogin() + ": " + message);
     }
 
-    public User getUser() {
-        return user;
+
+
+    //region геттеры и сеттеры
+
+    public String getIp() {
+        return server.getIpAddress();
     }
+    //endregion
 }

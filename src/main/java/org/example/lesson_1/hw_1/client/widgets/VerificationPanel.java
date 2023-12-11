@@ -78,7 +78,7 @@ public class VerificationPanel extends JPanel {
      * @return Component
      */
     private Component createFieldIp() {
-        JTextField ipAddress = new JTextField();
+        JTextField ipAddress = new JTextField(clientGUI.getIp());
         ipAddress.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -105,7 +105,7 @@ public class VerificationPanel extends JPanel {
      * @return Component
      */
     private Component createFieldPort() {
-        JTextField port = new JTextField();
+        JTextField port = new JTextField("8.8.8.8");
         port.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -132,7 +132,7 @@ public class VerificationPanel extends JPanel {
      * @return Component
      */
     private Component createFieldLogin() {
-        JTextField login = new JTextField();
+        JTextField login = new JTextField("Login");
         login.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -159,7 +159,7 @@ public class VerificationPanel extends JPanel {
      * @return Component
      */
     private Component createFieldPassword() {
-        JTextField password = new JTextField();
+        JTextField password = new JTextField("Password");
         password.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {

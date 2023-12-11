@@ -1,8 +1,6 @@
 package org.example.lesson_1.hw_1.server.ui.widgets;
 
 
-import org.example.lesson_1.hw_1.server.ui.ServerGUI;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,13 +12,12 @@ public class ServerLogPanel extends JPanel {
     private List<String> logMessages;
 
 
-
+    // виджеты
     private JScrollPane scrollPane;
     private JTextArea logTextArea;
 
 
-    public ServerLogPanel(ServerGUI server) {
-
+    public ServerLogPanel() {
         this.logMessages = new ArrayList<>();
 
         setLayout(new BorderLayout(2, 1));

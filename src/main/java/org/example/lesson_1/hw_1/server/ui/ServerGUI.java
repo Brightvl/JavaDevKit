@@ -26,7 +26,8 @@ public class ServerGUI extends JFrame {
     //region Конструктор
     public ServerGUI(Server server) {
         this.server = server;
-        this.serverLog = new ServerLogPanel(this);
+        this.serverLog = new ServerLogPanel();
+
 
         //region параметры окна
         setTitle("Server ver. 0.00000000000001"); // название окна
@@ -120,7 +121,12 @@ public class ServerGUI extends JFrame {
     }
 
 
-    public void appendMessageToServerLog(User user, String message) {
-        getServerMessage("user " + user.getLogin() + " wrote " + message + " in general chat");
+    /**
+     * Добавляет сообщение отправленное пользователем в логи сервера
+     * @param user пользователь
+     * @param message сообщение
+     */
+    public void appendUserMessageToServerLog(User user, String message) {
+        getServerMessage("User " + user.getLogin() + " wrote " + message + " in general chat");
     }
 }
