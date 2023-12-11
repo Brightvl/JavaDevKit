@@ -25,13 +25,13 @@ public class MessageDisplayWindowPanel extends JPanel {
         setLayout(new BorderLayout(2, 1));
 
         // для отображения исходящих сообщений
-        sendTextArea = new JTextArea();
+        sendTextArea = new JTextArea("\n\n");
         sendTextArea.setEditable(false); // запрет редактирования
         sendTextArea.setLineWrap(true);  // включить автоматический перенос строки
         sendTextArea.setWrapStyleWord(true);  // включить автоматический перенос слов
 
         // для отображения входящих сообщений
-        receiveTextArea = new JTextArea();
+        receiveTextArea = new JTextArea("Общий чат\n\n");
         receiveTextArea.setEditable(false);
         receiveTextArea.setLineWrap(true);
         receiveTextArea.setWrapStyleWord(true);
@@ -59,6 +59,7 @@ public class MessageDisplayWindowPanel extends JPanel {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
             sendTextArea.append(message + "\n");
+
         }
     }
 
@@ -71,6 +72,7 @@ public class MessageDisplayWindowPanel extends JPanel {
         if (!tempMessage.isEmpty()) {
             receiveTextArea.append(message + "\n");
         }
+
     }
 
 }

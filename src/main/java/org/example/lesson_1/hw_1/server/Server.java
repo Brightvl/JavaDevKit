@@ -10,15 +10,15 @@ import java.util.List;
 public class Server {
 
     // адрес сервера
-    private static String ipAddress = "192.168.168.255";
-    private static String port = "8.8.8.8";
+    private static final String ipAddress = "192.168.168.255";
+    private static final String port = "8.8.8.8";
 
     // состояние
     private boolean isServerWorking;
 
     // хранилища
-    private List<User> userList;
-    private List<ClientGUI> clientGUIs;
+    private final List<User> userList;
+    private final List<ClientGUI> clientGUIs;
 
 
     private final File LOG_FILE_PATH = new File("src/main/java/org/example/lesson_1/hw_1/data/filename.txt");

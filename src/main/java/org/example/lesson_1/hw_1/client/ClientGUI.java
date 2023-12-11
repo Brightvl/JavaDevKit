@@ -23,11 +23,9 @@ public class ClientGUI extends JFrame {
 
     //widgets
     private VerificationPanel verificationPanel;
-
     private MessageDisplayWindowPanel messageDisplayWindowPanel;
     private SendMessagePanel sendMessagePanel;
 
-    //
     private JPanel mainPanel;
 
     // клиент знает про сервер
@@ -41,7 +39,6 @@ public class ClientGUI extends JFrame {
     private ClientGUI(Server server) {
         this.server = server;
         this.isAuthorized = false;
-
 
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel(this);
 
