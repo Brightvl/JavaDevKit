@@ -8,19 +8,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 public class ServerGUI extends JFrame {
 
-    private Server server;
+    private final Server server;
+
+    Date date = new Date();
 
     // размеры окна
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
-    // виджеты
-    private JButton serverRun;
-    private JButton serverStop;
-    private ServerLogPanel serverLog; // окно логирования
+    private final ServerLogPanel serverLog; // окно логирования
 
 
     //region Конструктор
@@ -50,25 +50,28 @@ public class ServerGUI extends JFrame {
 
         //endregion
 
+        serverLog.serverLogUpdate(server.readLog());
+        super.setVisible(true);
     }
     //endregion
 
+    //region Виджеты
 
     /**
      * Создает кнопку запуска сервера
-     *
      * @return компонент кнопка
      */
     private Component createServerRunButton() {
-        this.serverRun = new JButton("Run server");
+        // виджеты
+        JButton serverRun = new JButton("Run server");
         serverRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!server.isServerWorking()) {
                     server.setServerWorking(true);
-                    serverLog.addLogMessage("Server launched");
+                    serverLogUpdate("Server launched");
                 } else {
-                    serverLog.addLogMessage("Server already run");
+                    serverLogUpdate("Server already run");
                 }
                 server.setServerWorking(true);
 
@@ -83,49 +86,30 @@ public class ServerGUI extends JFrame {
      * @return компонент кнопка
      */
     private Component createServerStopButton() {
-        this.serverStop = new JButton("Stop server");
+        JButton serverStop = new JButton("Stop server");
         // слушатель кнопки выход (анонимный класс)
         serverStop.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                exitProgram();
+                serverLogUpdate("Server stopped");
+                server.stopClientGUI();
             }
         });
         return serverStop;
     }
+    //endregion
 
 
+    //region Логика сообщений
     /**
-     * Запускает GUi
+     * Сохраняет сообщения в лог файле и обновляет их на экране
+     * @param text текст из фала логов
      */
-    public void runProgram() {
-        super.setVisible(true);
-    }
-    /**
-     * Производит действия для закрытия программы
-     */
-    private void exitProgram() {
-        serverLog.addLogMessage("Server stopped");
-        server.stopClientGUI();
+    public void serverLogUpdate(String text) {
+        server.saveInLog(text);
+        serverLog.serverLogUpdate(server.readLog());
     }
 
-    /**
-     * Получает сообщения от из сервера
-     * @param message полученное сообщение
-     */
-    public void getServerMessage(String message) {
-        serverLog.addLogMessage(message);
-
-    }
-
-
-    /**
-     * Добавляет сообщение отправленное пользователем в логи сервера
-     * @param user пользователь
-     * @param message сообщение
-     */
-    public void appendUserMessageToServerLog(User user, String message) {
-        getServerMessage("User " + user.getLogin() + " wrote " + message + " in general chat");
-    }
+    //endregion
 }

@@ -1,6 +1,6 @@
-package org.example.hw_server.client.widgets;
+package org.example.hw_server.client.ui.widgets;
 
-import org.example.hw_server.client.ClientGUI;
+import org.example.hw_server.client.ui.ClientGUI;
 
 
 import javax.swing.*;
@@ -19,11 +19,7 @@ public class SendMessagePanel extends JPanel {
     private JTextField textInputPanel;
 
     //mainFrame
-    private ClientGUI clientGUI;
-
-    //Widgets
-    private JButton sendMessageButton;
-    private String sendMessage;
+    private final ClientGUI clientGUI;
 
 
     /**
@@ -63,9 +59,10 @@ public class SendMessagePanel extends JPanel {
      * @return
      */
     private Component createSendMessageButton() {
-        this.sendMessageButton = new JButton("Send");
+        //Widgets
+        JButton sendMessageButton = new JButton("Send");
 
-        this.sendMessageButton.addActionListener(new ActionListener() {
+        sendMessageButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sendMessage();
@@ -80,9 +77,9 @@ public class SendMessagePanel extends JPanel {
      */
     private void sendMessage() {
         // получаем текст с поля ввода сообщения
-        this.sendMessage = textInputPanel.getText();
+        String sendMessage = textInputPanel.getText();
         // Очищаем текстовое поле
         this.textInputPanel.setText("");
-        this.clientGUI.appendUserMessageToServer(sendMessage.trim());
+        this.clientGUI.appendUserMessage(sendMessage.trim());
     }
 }

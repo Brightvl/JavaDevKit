@@ -1,16 +1,17 @@
-package org.example.hw_server.client;
+package org.example.hw_server.client.ui;
 
 
-import org.example.hw_server.client.widgets.MessageDisplayWindowPanel;
-import org.example.hw_server.client.widgets.SendMessagePanel;
-import org.example.hw_server.client.widgets.VerificationPanel;
+import org.example.hw_server.client.ui.widgets.MessageDisplayWindowPanel;
+import org.example.hw_server.client.ui.widgets.SendMessagePanel;
+import org.example.hw_server.client.ui.widgets.VerificationPanel;
 import org.example.hw_server.server.Server;
 import org.example.hw_server.server.User;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ClientGUI extends JFrame {
+public class ClientGUI extends JFrame implements View{
+
 
     private User user;
 
@@ -21,20 +22,17 @@ public class ClientGUI extends JFrame {
     //пройдена ли авторизация
     private boolean isAuthorized;
 
-    //widgets
-    private VerificationPanel verificationPanel;
-    private MessageDisplayWindowPanel messageDisplayWindowPanel;
-    private SendMessagePanel sendMessagePanel;
+    private final MessageDisplayWindowPanel messageDisplayWindowPanel;
 
-    private JPanel mainPanel;
+    private final JPanel mainPanel;
 
     // клиент знает про сервер
-    private Server server;
+    private final Server server;
 
 
     /**
      * Конструктор
-     * @param server
+     * @param server сервер
      */
     private ClientGUI(Server server) {
         this.server = server;
@@ -74,7 +72,8 @@ public class ClientGUI extends JFrame {
      */
     private void createVerificationPanel() {
         this.mainPanel.removeAll(); // Очищаем текущие компоненты
-        this.verificationPanel = new VerificationPanel(this);
+        //widgets
+        VerificationPanel verificationPanel = new VerificationPanel(this);
         this.mainPanel.add(verificationPanel, BorderLayout.NORTH);
 
         add(mainPanel);
@@ -88,9 +87,10 @@ public class ClientGUI extends JFrame {
     private void createChat() {
         this.mainPanel.removeAll(); // Очищаем текущие компоненты
         this.mainPanel.add(messageDisplayWindowPanel, BorderLayout.CENTER);
+
         add(mainPanel);
 
-        this.sendMessagePanel = new SendMessagePanel(this);
+        SendMessagePanel sendMessagePanel = new SendMessagePanel(this);
         add(sendMessagePanel, BorderLayout.SOUTH);
 
         revalidate(); // Обновляем компоненты окна
@@ -101,7 +101,7 @@ public class ClientGUI extends JFrame {
     /**
      * Фабричный метод для создания объекта и отображения окна
      */
-    public static ClientGUI createClient(Server server, Point pointWindow, int indentX, int indentY) {
+    public static void createClient(Server server, Point pointWindow, int indentX, int indentY) {
         // Создаем новое окно клиента
         ClientGUI clientGUI = new ClientGUI(server);
 
@@ -113,7 +113,6 @@ public class ClientGUI extends JFrame {
         clientGUI.setVisible(true);
 
         server.addClient(clientGUI);
-        return clientGUI;
     }
 
     /**
@@ -129,49 +128,45 @@ public class ClientGUI extends JFrame {
 
     /**
      * Проверяет верификацию введенных данных пользователя у сервера
-     * @param ip Ip адрес
-     * @param port порт
-     * @param login логин
+     *
+     * @param ip       Ip адрес
+     * @param port     порт
+     * @param login    логин
      * @param password пароль
-     * @return true если авторизация прошла успешно
      */
-    public boolean checkVerification(String ip, String port, String login, String password) {
+    public void checkVerification(String ip, String port, String login, String password) {
         if (server.isServerWorking()) {
             int verificationLog = server.checkVerification(ip, port, login, password);
             switch (verificationLog) {
                 case 1 -> {
                     showNotification("Ip адрес не найден");
-                    return false;
                 }
                 case 2 -> {
                     showNotification("Неверно указанный порт");
-                    return false;
                 }
                 case 3 -> {
                     showNotification("Для авторизации введите логин и пароль");
-                    return false;
                 }
                 case 4 -> {
                     showNotification("Не верный логин или пароль");
-                    return false;
                 }
                 default -> {
-                    this.user = server.getUser();
+                    this.user = server.findByLogin(login);
                     this.isAuthorized = true;
                     createChat();
-                    return true;
                 }
             }
         } else showNotification("Сервер не запущен");
-        return false;
     }
 
     /**
      * Сохраняет сообщение на сервере
+     *
+
      * @param message сообщение
      */
-    public void appendUserMessageToServer(String message) {
-        server.appendUserMessageToServer(user, message);
+    public void appendUserMessage(String message) {
+        server.appendUserMessage(this.user,message);
         appendSentMessage(message);
     }
 
@@ -191,8 +186,8 @@ public class ClientGUI extends JFrame {
      *
      * @param message входящее сообщение
      */
-    public void appendReceiveMessage(User user, String message) {
-        this.messageDisplayWindowPanel.appendReceiveMessage(user.getLogin() + ": " + message);
+    public void appendReceiveMessage(String message) {
+        this.messageDisplayWindowPanel.appendReceiveMessage(message);
     }
 
     public void showNotification(String message) {
@@ -201,16 +196,13 @@ public class ClientGUI extends JFrame {
 
 
 
-
     //region геттеры и сеттеры
-
     public String getIp() {
-        return server.getIpAddress();
+        return Server.getIpAddress();
+    }
+
+    public String getReceiveText() {
+        return server.readMessage();
     }
     //endregion
-
-
-    public boolean isAuthorized() {
-        return isAuthorized;
-    }
 }

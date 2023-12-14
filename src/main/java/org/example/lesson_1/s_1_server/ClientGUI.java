@@ -11,7 +11,7 @@ public class ClientGUI extends JFrame {
     public static final int WIDTH = 400;
     public static final int HEIGHT = 300;
 
-    private ServerWindow server;
+    private final ServerWindow server;
     private boolean connected;
     private String name;
 

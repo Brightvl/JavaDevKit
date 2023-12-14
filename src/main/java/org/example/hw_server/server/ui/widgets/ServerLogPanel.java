@@ -9,12 +9,12 @@ import java.util.List;
 public class ServerLogPanel extends JPanel {
 
     // массив для логов
-    private List<String> logMessages;
+    private final List<String> logMessages;
 
 
     // виджеты
-    private JScrollPane scrollPane;
-    private JTextArea logTextArea;
+    private final JScrollPane scrollPane;
+    private final JTextArea logTextArea;
 
 
     public ServerLogPanel() {
@@ -39,21 +39,15 @@ public class ServerLogPanel extends JPanel {
     /**
      * Метод для добавления текста в log файл
      *
-     * @param message сообщение для логирования
+     * @param text текст логов
      */
-    public void addLogMessage(String message) {
-        this.logMessages.add(message);
+    public void serverLogUpdate(String text) {
+        this.logMessages.add(text);
+        logTextArea.setText(text);
 
-        // Обновляем текст в JTextArea
-        StringBuilder logText = new StringBuilder();
-        for (int i = 0; i < logMessages.size(); i++) {
-            logText.append(i + 1).append(". ").append(logMessages.get(i)).append("\n");
-        }
-        logTextArea.setText(logText.toString());
-
-        // Прокручиваем до конца
         JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 
         repaint();
     }

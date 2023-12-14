@@ -1,6 +1,6 @@
-package org.example.hw_server.client.widgets;
+package org.example.hw_server.client.ui.widgets;
 
-import org.example.hw_server.client.ClientGUI;
+import org.example.hw_server.client.ui.ClientGUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,17 +10,13 @@ import java.awt.*;
  */
 public class MessageDisplayWindowPanel extends JPanel {
 
-    // виджеты
-    private JScrollPane scrollPane;
-    private JTextArea sendTextArea;
-    private JTextArea receiveTextArea;
-    private ClientGUI clientGUI;
+    private final JTextArea sendTextArea;
+    private final JTextArea receiveTextArea;
 
     /**
      * Конструктор
      */
     public MessageDisplayWindowPanel(ClientGUI clientGUI) {
-        this.clientGUI = clientGUI;
         // компоновщик
         setLayout(new BorderLayout(2, 1));
 
@@ -35,6 +31,7 @@ public class MessageDisplayWindowPanel extends JPanel {
         receiveTextArea.setEditable(false);
         receiveTextArea.setLineWrap(true);
         receiveTextArea.setWrapStyleWord(true);
+        receiveTextArea.setText(clientGUI.getReceiveText());
 
         // разделяю поле для отправленных и принятых сообщений
         JPanel jPanel = new JPanel(new GridLayout(1, 2));
@@ -42,8 +39,10 @@ public class MessageDisplayWindowPanel extends JPanel {
         jPanel.add(sendTextArea);
 
         // Добавляем текстовое поле в панель для скроллинга
-        scrollPane = new JScrollPane(jPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        // виджеты
+        JScrollPane scrollPane = new JScrollPane(jPanel);
+        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+
 
         // Добавляем виджеты
         add((new JLabel("General chat", JLabel.CENTER)), BorderLayout.NORTH);
@@ -70,7 +69,7 @@ public class MessageDisplayWindowPanel extends JPanel {
     public void appendReceiveMessage(String message) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            receiveTextArea.append(message + "\n");
+            receiveTextArea.setText(message);
         }
 
     }

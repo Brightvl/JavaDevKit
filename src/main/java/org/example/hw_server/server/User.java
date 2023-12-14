@@ -3,8 +3,8 @@ package org.example.hw_server.server;
 public class User {
 
     static int clientId = 0;
-    private String login;
-    private String password;
+    private final String login;
+    private final String password;
 
 
     public User(String name, String password) {

@@ -1,7 +1,7 @@
-package org.example.hw_server.client.widgets;
+package org.example.hw_server.client.ui.widgets;
 
 
-import org.example.hw_server.client.ClientGUI;
+import org.example.hw_server.client.ui.ClientGUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +11,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 public class VerificationPanel extends JPanel {
-
-    private boolean isVisible;
 
     // введенные данные сервера
     private String ipAddress;
@@ -33,21 +31,19 @@ public class VerificationPanel extends JPanel {
     private static final int HEIGHT = 507;
 
     // для взаимодействия с main основным клиентом
-    private ClientGUI clientGUI;
+    private final ClientGUI clientGUI;
 
     public VerificationPanel(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
-        this.isVisible = true;
+        boolean isVisible = true;
         //создаем поля ввода параметров пользователя
         createField();
     }
 
     /**
      * Создает поле для авторизации
-     *
-     * @return поле ввода данных
      */
-    private Component createField() {
+    private void createField() {
         // панель параметров сервера
         JPanel serverPanel = new JPanel(new GridLayout(1, 2));
         this.ipAddressTextField = (JTextField) createFieldIp();
@@ -68,7 +64,6 @@ public class VerificationPanel extends JPanel {
         add(serverPanel, BorderLayout.NORTH);
         add(authorizationPanel, BorderLayout.CENTER);
         add(createAuthorizationButton(), BorderLayout.SOUTH);
-        return this;
     }
 
 
