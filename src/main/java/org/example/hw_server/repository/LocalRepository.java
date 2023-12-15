@@ -10,7 +10,7 @@ public class LocalRepository implements Repository{
 
     public LocalRepository() {
         this.userList = new ArrayList<>();
-        userList.add(new User("Andrei","1234"));
+        userList.add(new User("1","1"));
         userList.add(new User("Nikolai","4321"));
     }
 

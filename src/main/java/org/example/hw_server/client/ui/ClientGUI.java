@@ -1,6 +1,7 @@
 package org.example.hw_server.client.ui;
 
 
+import org.example.hw_server.client.Client;
 import org.example.hw_server.client.ui.widgets.MessageDisplayWindowPanel;
 import org.example.hw_server.client.ui.widgets.SendMessagePanel;
 import org.example.hw_server.client.ui.widgets.VerificationPanel;
@@ -19,15 +20,13 @@ public class ClientGUI extends JFrame implements View{
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
-    //пройдена ли авторизация
-    private boolean isAuthorized;
+
 
     private final MessageDisplayWindowPanel messageDisplayWindowPanel;
 
     private final JPanel mainPanel;
 
-    // клиент знает про сервер
-    private final Server server;
+    private Client client;
 
 
     /**
@@ -35,37 +34,45 @@ public class ClientGUI extends JFrame implements View{
      * @param server сервер
      */
     private ClientGUI(Server server) {
-        this.server = server;
-        this.isAuthorized = false;
+        this.client = new Client(this, server);
+
 
         this.mainPanel = new JPanel(new BorderLayout(2, 1));
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel(this);
 
         // задаем параметры окна
-        paramWindow();
+        settingWindow();
         //выводит панель верификации
         clientAutonomization();
     }
-
 
     /**
      * Логика GUI
      */
     public void clientAutonomization() {
-        if (server.isServerWorking()) {
-            if (!isAuthorized) {
+        if (client.checkServerStartup()) {
+            if (!client.isAuthorized()) {
                 createVerificationPanel();
-            } else createChat();
+            } else createChatField();
 
         } else {
-            if (isAuthorized) {
+            if (client.isAuthorized()) {
                 showNotification("Сервер не отвечает");
-                this.isAuthorized = false;
+                client.setAuthorized(false);
             }
             createVerificationPanel();
         }
     }
 
+    /**
+     * Задает параметры клиентского окна
+     */
+    private void settingWindow() {
+        setTitle("General chat"); // название окна
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(WIDTH, HEIGHT);
+        setResizable(false); // запрет на растягивание окна
+    }
 
     /**
      * Создает поле для ввода верификационных параметров пользователя
@@ -84,7 +91,7 @@ public class ClientGUI extends JFrame implements View{
     /**
      * Создание окна чата и ввода сообщения
      */
-    private void createChat() {
+    private void createChatField() {
         this.mainPanel.removeAll(); // Очищаем текущие компоненты
         this.mainPanel.add(messageDisplayWindowPanel, BorderLayout.CENTER);
 
@@ -97,11 +104,10 @@ public class ClientGUI extends JFrame implements View{
         repaint();
     }
 
-
     /**
      * Фабричный метод для создания объекта и отображения окна
      */
-    public static void createClient(Server server, Point pointWindow, int indentX, int indentY) {
+    public static void createClientGUI(Server server, Point pointWindow, int indentX, int indentY) {
         // Создаем новое окно клиента
         ClientGUI clientGUI = new ClientGUI(server);
 
@@ -112,97 +118,50 @@ public class ClientGUI extends JFrame implements View{
 
         clientGUI.setVisible(true);
 
-        server.addClient(clientGUI);
     }
 
     /**
-     * Задает параметры клиентского окна
+     * Выдает уведомление
+     * @param message
      */
-    private void paramWindow() {
-        setTitle("General chat"); // название окна
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
-        setResizable(false); // запрет на растягивание окна
-    }
-
-
-    /**
-     * Проверяет верификацию введенных данных пользователя у сервера
-     *
-     * @param ip       Ip адрес
-     * @param port     порт
-     * @param login    логин
-     * @param password пароль
-     */
-    public void checkVerification(String ip, String port, String login, String password) {
-        if (server.isServerWorking()) {
-            int verificationLog = server.checkVerification(ip, port, login, password);
-            switch (verificationLog) {
-                case 1 -> {
-                    showNotification("Ip адрес не найден");
-                }
-                case 2 -> {
-                    showNotification("Неверно указанный порт");
-                }
-                case 3 -> {
-                    showNotification("Для авторизации введите логин и пароль");
-                }
-                case 4 -> {
-                    showNotification("Не верный логин или пароль");
-                }
-                default -> {
-                    this.user = server.findByLogin(login);
-                    this.isAuthorized = true;
-                    createChat();
-                }
-            }
-        } else showNotification("Сервер не запущен");
-    }
-
-    /**
-     * Сохраняет сообщение на сервере
-     *
-
-     * @param message сообщение
-     */
-    public void appendUserMessage(String message) {
-        server.appendUserMessage(this.user,message);
-        appendSentMessage(message);
-    }
-
-    /**
-     * Добавляет сообщение полученное от пользователя в поле исходящие
-     *
-     * @param message сообщение
-     */
-    public void appendSentMessage(String message) {
-        String sendMessage = user.getLogin() + ": "+ message;
-        this.messageDisplayWindowPanel.appendSentMessage(sendMessage);
-    }
-
-
-    /**
-     * Добавляет сообщение полученное от пользователя в поле входящие
-     *
-     * @param message входящее сообщение
-     */
-    public void appendReceiveMessage(String message) {
-        this.messageDisplayWindowPanel.appendReceiveMessage(message);
-    }
-
     public void showNotification(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
 
+    @Override
+    public void sendMessage(String message) {
+        messageDisplayWindowPanel.sendMessage(message);
+    }
+
+    public String getMessage() {
+        return client.getMessage();
+    }
+
+    public void appendMessage(String message) {
+        client.appendMessage(message);
+    }
 
 
-    //region геттеры и сеттеры
+    @Override
+    public void connectedToServer() {
+        clientAutonomization();
+    }
+
+    @Override
+    public void disconnectedFromServer() {
+        clientAutonomization();
+    }
+
     public String getIp() {
-        return Server.getIpAddress();
+        return client.getIp();
     }
 
-    public String getReceiveText() {
-        return server.readMessage();
+    public void verification(String ipAddress, String port, String login, String password) {
+        client.checkVerification(ipAddress,port,login,password);
     }
+
+
+
+
     //endregion
 }

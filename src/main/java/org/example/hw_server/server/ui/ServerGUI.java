@@ -1,7 +1,6 @@
 package org.example.hw_server.server.ui;
 
 import org.example.hw_server.server.Server;
-import org.example.hw_server.server.User;
 import org.example.hw_server.server.ui.widgets.ServerLogPanel;
 
 import javax.swing.*;
@@ -50,7 +49,7 @@ public class ServerGUI extends JFrame {
 
         //endregion
 
-        serverLog.serverLogUpdate(server.readLog());
+        serverLog.serverLogUpdate(getLog());
         super.setVisible(true);
     }
     //endregion
@@ -67,13 +66,13 @@ public class ServerGUI extends JFrame {
         serverRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!server.isServerWorking()) {
-                    server.setServerWorking(true);
+                if (!server.isRun()) {
+                    server.setRun(true);
                     serverLogUpdate("Server launched");
                 } else {
                     serverLogUpdate("Server already run");
                 }
-                server.setServerWorking(true);
+                server.setRun(true);
 
             }
         });
@@ -107,8 +106,20 @@ public class ServerGUI extends JFrame {
      * @param text текст из фала логов
      */
     public void serverLogUpdate(String text) {
-        server.saveInLog(text);
-        serverLog.serverLogUpdate(server.readLog());
+        saveInLog(text);
+        serverLog.serverLogUpdate(getLog());
+    }
+
+    public void saveInLog(String message) {
+        server.saveInLog(message);
+    }
+
+    public String getLog() {
+        return server.readLog();
+    }
+
+    public void appendMessageToServerLog(String message) {
+        serverLog.serverLogUpdate(message);
     }
 
     //endregion

@@ -1,6 +1,6 @@
 package org.example.hw_server.server;
 
-import org.example.hw_server.client.ui.ClientGUI;
+import org.example.hw_server.client.Client;
 import org.example.hw_server.repository.LocalRepository;
 import org.example.hw_server.repository.Repository;
 import org.example.hw_server.server.ui.ServerGUI;
@@ -17,14 +17,14 @@ public class Server {
 
 
     // адрес сервера
-    private static final String ipAddress = "192.168.168.255";
+    private final String ipAddress = "192.168.168.255";
     private static final String port = "8.8.8.8";
 
     // состояние
-    private boolean isServerWorking;
+    private boolean run;
 
     // хранилища
-    private final List<ClientGUI> clientGUIs;
+    private final List<Client> clients;
     private final Repository repository;
 
 
@@ -39,8 +39,8 @@ public class Server {
      * Конструктор
      */
     public Server() {
-        this.isServerWorking = false;
-        this.clientGUIs = new ArrayList<>();
+        this.run = false;
+        this.clients = new ArrayList<>();
         this.repository = new LocalRepository();
 
         serverGUI = new ServerGUI(this);
@@ -57,8 +57,7 @@ public class Server {
      * @return значение ошибки
      */
     public int checkVerification(String ipAddress, String port, String login, String password) {
-
-        if (!ipAddress.equals(Server.ipAddress)) return 1;
+        if (!ipAddress.equals(ipAddress)) return 1;
         if (!port.equals(Server.port)) return 2;
         User user = findByLogin(login);
 
@@ -87,22 +86,30 @@ public class Server {
 
     /**
      * Получает сообщение отправленное клиентом и добавляет его в общий чат
-     *
-     * @param message отправленное клиентом сообщение
      */
-    public void appendMessageToGeneralChat(String message) {
-        for (ClientGUI clientGUI : clientGUIs
+    public String getMessage() {
+        return readMessage();
+    }
+
+    /**
+     * Получает сообщение отправленное клиентом и добавляет его в общий чат
+     */
+    public void sendMessageToGeneralChat() {
+        for (Client client : clients
         ) {
-            clientGUI.appendReceiveMessage(message);
+            client.sendMessage(readMessage());
         }
     }
+
+
 
     /**
      * Добавляет отправленное сообщение в логи сервера
      * @param message сообщение
      */
     private void appendMessageToServerLog(String message) {
-        serverGUI.serverLogUpdate(message);
+        saveInLog(message);
+        serverGUI.appendMessageToServerLog(readLog());
     }
 
     /**
@@ -110,49 +117,49 @@ public class Server {
      * @param message сообщение
      */
     public void appendUserMessage(User user, String message) {
-        appendMessageToServerLog("User " + user.getLogin() + " wrote " + message + " in general chat");
+        appendMessageToServerLog("User [" + user.getLogin() + "] wrote {" + message + "} in general chat");
 
-        saveInMessage(message);
-        appendMessageToGeneralChat(readMessage());
+        saveInMessage(user.getLogin() + ": " + message);
+        sendMessageToGeneralChat();
     }
 
 
     public void stopClientGUI() {
-        this.isServerWorking = false;
-        for (ClientGUI clientGUI : clientGUIs
+        this.run = false;
+        for (Client client : clients
         ) {
-            clientGUI.clientAutonomization();
+            client.disconnectedFromServer();
         }
 
     }
 
 
-    public void addClient(ClientGUI clientGUI) {
-        clientGUIs.add(clientGUI);
+    public void addClient(Client client) {
+        clients.add(client);
     }
 
     public ServerGUI getServerGUI() {
         return serverGUI;
     }
 
-    public static String getIpAddress() {
+    public String getIpAddress() {
         return ipAddress;
     }
 
     /**
      * @return Возвращает bool значение состояния сервера
      */
-    public boolean isServerWorking() {
-        return isServerWorking;
+    public boolean isRun() {
+        return run;
     }
 
     /**
      * Меняет значение состояния сервера
      *
-     * @param serverWorking boolean
+     * @param run boolean
      */
-    public void setServerWorking(boolean serverWorking) {
-        isServerWorking = serverWorking;
+    public void setRun(boolean run) {
+        this.run = run;
     }
 
     /**
@@ -176,7 +183,7 @@ public class Server {
     public void saveInLog(String message) {
 
         try (FileWriter writer = new FileWriter(LOG_FILE_PATH, true)) {
-            writer.write(getDateTime() + ": " + message);
+            writer.write(getDateTime() + " " + message);
             writer.write("\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,7 +213,7 @@ public class Server {
 
     public void saveInMessage(String message) {
         try (FileWriter writer = new FileWriter(ALL_MESSAGE_FILE_PATH, true)) {
-            writer.write(getDateTime() + ": " + message);
+            writer.write(getDateTime() + " " + message);
             writer.write("\n");
         } catch (Exception e) {
             e.printStackTrace();

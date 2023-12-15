@@ -80,6 +80,8 @@ public class SendMessagePanel extends JPanel {
         String sendMessage = textInputPanel.getText();
         // Очищаем текстовое поле
         this.textInputPanel.setText("");
-        this.clientGUI.appendUserMessage(sendMessage.trim());
+        if (!sendMessage.isEmpty()) {
+            this.clientGUI.appendMessage(sendMessage.trim());
+        }
     }
 }

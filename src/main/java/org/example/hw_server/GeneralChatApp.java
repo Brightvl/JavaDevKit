@@ -8,8 +8,8 @@ public class GeneralChatApp {
     public static void main(String[] args) {
         Server server = new Server();
 
-        ClientGUI.createClient(server, server.getServerGUI().getLocation(), -server.getServerGUI().getWidth(), 0);
-        ClientGUI.createClient(server, server.getServerGUI().getLocation(), server.getServerGUI().getWidth(), 0);
+        ClientGUI.createClientGUI(server, server.getServerGUI().getLocation(), -server.getServerGUI().getWidth(), 0);
+        ClientGUI.createClientGUI(server, server.getServerGUI().getLocation(), server.getServerGUI().getWidth(), 0);
 
     }
 }
