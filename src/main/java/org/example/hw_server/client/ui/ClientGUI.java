@@ -6,12 +6,12 @@ import org.example.hw_server.client.ui.widgets.MessageDisplayWindowPanel;
 import org.example.hw_server.client.ui.widgets.SendMessagePanel;
 import org.example.hw_server.client.ui.widgets.VerificationPanel;
 import org.example.hw_server.server.Server;
-import org.example.hw_server.server.User;
+import org.example.hw_server.repository.User;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ClientGUI extends JFrame implements View{
+public class ClientGUI extends JFrame implements ViewClient {
 
 
     private User user;

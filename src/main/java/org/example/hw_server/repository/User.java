@@ -1,4 +1,4 @@
-package org.example.hw_server.server;
+package org.example.hw_server.repository;
 
 public class User {
 

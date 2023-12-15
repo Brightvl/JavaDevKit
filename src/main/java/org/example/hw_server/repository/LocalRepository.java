@@ -1,7 +1,5 @@
 package org.example.hw_server.repository;
 
-import org.example.hw_server.server.User;
-
 import java.util.ArrayList;
 import java.util.List;
 

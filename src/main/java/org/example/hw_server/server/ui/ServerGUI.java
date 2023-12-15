@@ -1,6 +1,7 @@
 package org.example.hw_server.server.ui;
 
 import org.example.hw_server.server.Server;
+import org.example.hw_server.server.ViewServer;
 import org.example.hw_server.server.ui.widgets.ServerLogPanel;
 
 import javax.swing.*;
@@ -9,7 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
 
-public class ServerGUI extends JFrame {
+public class ServerGUI extends JFrame implements ViewServer {
 
     private final Server server;
 
@@ -29,7 +30,8 @@ public class ServerGUI extends JFrame {
 
 
         //region параметры окна
-        setTitle("Server ver. 0.00000000000001"); // название окна
+        setTitle("Server ver. 0.00000000000002"); // название окна
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null); // по центру экрана
@@ -49,7 +51,7 @@ public class ServerGUI extends JFrame {
 
         //endregion
 
-        serverLog.serverLogUpdate(getLog());
+        serverLog.serverLogUpdate(getLogMessage());
         super.setVisible(true);
     }
     //endregion
@@ -68,9 +70,9 @@ public class ServerGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (!server.isRun()) {
                     server.setRun(true);
-                    serverLogUpdate("Server launched");
+                    serverLogUpdate("[Server] launched");
                 } else {
-                    serverLogUpdate("Server already run");
+                    serverLogUpdate("[Server] already run");
                 }
                 server.setRun(true);
 
@@ -91,7 +93,7 @@ public class ServerGUI extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                serverLogUpdate("Server stopped");
+                serverLogUpdate("[Server] stopped");
                 server.stopClientGUI();
             }
         });
@@ -107,20 +109,27 @@ public class ServerGUI extends JFrame {
      */
     public void serverLogUpdate(String text) {
         saveInLog(text);
-        serverLog.serverLogUpdate(getLog());
+        showLog(getLogMessage());
     }
 
     public void saveInLog(String message) {
         server.saveInLog(message);
     }
 
-    public String getLog() {
+    public String getLogMessage() {
         return server.readLog();
     }
 
-    public void appendMessageToServerLog(String message) {
+    @Override
+    public void showLog(String message) {
         serverLog.serverLogUpdate(message);
     }
+
+    @Override
+    public void runServer() {
+
+    }
+
 
     //endregion
 }

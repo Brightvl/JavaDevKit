@@ -1,12 +1,11 @@
 package org.example.hw_server.client;
 
-import com.sun.source.tree.BreakTree;
-import org.example.hw_server.client.ui.View;
+import org.example.hw_server.client.ui.ViewClient;
 import org.example.hw_server.server.Server;
-import org.example.hw_server.server.User;
+import org.example.hw_server.repository.User;
 
 public class Client {
-    private View view;
+    private ViewClient view;
     private Server server;
 
     private User user;
@@ -14,7 +13,7 @@ public class Client {
     //пройдена ли авторизация
     private boolean authorized;
 
-    public Client(View view, Server server) {
+    public Client(ViewClient view, Server server) {
         this.view = view;
         this.server = server;
 

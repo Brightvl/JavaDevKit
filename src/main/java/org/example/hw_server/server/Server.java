@@ -3,6 +3,7 @@ package org.example.hw_server.server;
 import org.example.hw_server.client.Client;
 import org.example.hw_server.repository.LocalRepository;
 import org.example.hw_server.repository.Repository;
+import org.example.hw_server.repository.User;
 import org.example.hw_server.server.ui.ServerGUI;
 
 import java.io.File;
@@ -109,7 +110,7 @@ public class Server {
      */
     private void appendMessageToServerLog(String message) {
         saveInLog(message);
-        serverGUI.appendMessageToServerLog(readLog());
+        serverGUI.showLog(readLog());
     }
 
     /**
@@ -117,9 +118,9 @@ public class Server {
      * @param message сообщение
      */
     public void appendUserMessage(User user, String message) {
-        appendMessageToServerLog("User [" + user.getLogin() + "] wrote {" + message + "} in general chat");
+        appendMessageToServerLog("[" + user.getLogin() + "] wrote {" + message + "} in general chat");
 
-        saveInMessage(user.getLogin() + ": " + message);
+        saveInMessage("[" + user.getLogin() + "]: " + message);
         sendMessageToGeneralChat();
     }
 
