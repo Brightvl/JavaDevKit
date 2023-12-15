@@ -25,6 +25,8 @@ public class ServerLogPanel extends JPanel {
         // Создаем JTextArea для отображения логов, ставим запрет на редактирование
         logTextArea = new JTextArea();
         logTextArea.setEditable(false);
+        logTextArea.setLineWrap(true);  // включить автоматический перенос строки
+        logTextArea.setWrapStyleWord(true);  // включить автоматический перенос слов
 
         // Добавляем текстовое поле в панель для скроллинга
         scrollPane = new JScrollPane(logTextArea);
@@ -33,6 +35,8 @@ public class ServerLogPanel extends JPanel {
         //добавляем виджеты
         add((new JLabel("Server log: ", JLabel.CENTER)), BorderLayout.NORTH); // Название окна логов
         add(scrollPane, BorderLayout.CENTER);
+
+        setVisible(false);
     }
 
 

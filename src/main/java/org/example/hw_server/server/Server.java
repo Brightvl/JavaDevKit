@@ -1,14 +1,14 @@
 package org.example.hw_server.server;
 
 import org.example.hw_server.client.Client;
+import org.example.hw_server.file_manager.FileManager;
+import org.example.hw_server.file_manager.Manager;
 import org.example.hw_server.repository.LocalRepository;
 import org.example.hw_server.repository.Repository;
 import org.example.hw_server.repository.User;
 import org.example.hw_server.server.ui.ServerGUI;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,21 +19,23 @@ public class Server {
 
     // адрес сервера
     private final String ipAddress = "192.168.168.255";
-    private static final String port = "8.8.8.8";
+    private static String port = "8.8.8.8";
 
     // состояние
     private boolean run;
 
-    // хранилища
+    //пути
+    private final File LOG_FILE_PATH = new File("src/main/java/org/example/hw_server/file_manager/data/log.txt");
+    private FileManager logger;
+    private final File ALL_MESSAGE_FILE_PATH = new File("src/main/java/org/example/hw_server/file_manager/data/all_message.txt");
+    private FileManager messageStorage;
+
+
+    // зависимости
     private final List<Client> clients;
     private final Repository repository;
+    private ViewServer viewServer;
 
-
-    private final File LOG_FILE_PATH = new File("src/main/java/org/example/hw_server/data/log.txt");
-    private final File ALL_MESSAGE_FILE_PATH = new File("src/main/java/org/example/hw_server/data/all_message.txt");
-
-    //окно клиента
-    private final ServerGUI serverGUI;
 
 
     /**
@@ -43,8 +45,11 @@ public class Server {
         this.run = false;
         this.clients = new ArrayList<>();
         this.repository = new LocalRepository();
+        this.logger = new Manager(LOG_FILE_PATH);
+        this.messageStorage = new Manager(ALL_MESSAGE_FILE_PATH);
 
-        serverGUI = new ServerGUI(this);
+
+        viewServer = new ServerGUI(this);
     }
 
 
@@ -65,7 +70,7 @@ public class Server {
         if (user == null) return 3;
         if (!(user.getLogin().equalsIgnoreCase(login) &&
                 user.getPassword().equalsIgnoreCase(password))) return 4;
-        appendMessageToServerLog("User verification " + login + " was successful");
+        appendMessageToServerLog("[" + login + "]: verification was successful");
         return 0;
     }
 
@@ -89,7 +94,7 @@ public class Server {
      * Получает сообщение отправленное клиентом и добавляет его в общий чат
      */
     public String getMessage() {
-        return readMessage();
+        return messageStorage.load();
     }
 
     /**
@@ -98,7 +103,7 @@ public class Server {
     public void sendMessageToGeneralChat() {
         for (Client client : clients
         ) {
-            client.sendMessage(readMessage());
+            client.sendMessage(messageStorage.load());
         }
     }
 
@@ -109,8 +114,8 @@ public class Server {
      * @param message сообщение
      */
     private void appendMessageToServerLog(String message) {
-        saveInLog(message);
-        serverGUI.showLog(readLog());
+        logger.save(message);
+        viewServer.showLog(logger.load());
     }
 
     /**
@@ -118,9 +123,9 @@ public class Server {
      * @param message сообщение
      */
     public void appendUserMessage(User user, String message) {
-        appendMessageToServerLog("[" + user.getLogin() + "] wrote {" + message + "} in general chat");
+        appendMessageToServerLog("[" + user.getLogin() + "] sent {" + message + "} in general chat");
 
-        saveInMessage("[" + user.getLogin() + "]: " + message);
+        messageStorage.save("[" + user.getLogin() + "]: " + message);
         sendMessageToGeneralChat();
     }
 
@@ -140,7 +145,7 @@ public class Server {
     }
 
     public ServerGUI getServerGUI() {
-        return serverGUI;
+        return (ServerGUI) viewServer;
     }
 
     public String getIpAddress() {
@@ -176,70 +181,11 @@ public class Server {
         return '['+currentDateTime.format(formatter)+']';
     }
 
-    /**
-     * Запись содержимого в файл
-     *
-     * @param message сообщение
-     */
-    public void saveInLog(String message) {
-
-        try (FileWriter writer = new FileWriter(LOG_FILE_PATH, true)) {
-            writer.write(getDateTime() + " " + message);
-            writer.write("\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public FileManager getLogger() {
+        return logger;
     }
 
-    /**
-     * Считывание содержимого файла
-     *
-     * @return
-     */
-    public String readLog() {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (FileReader reader = new FileReader(LOG_FILE_PATH);) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                stringBuilder.append((char) c);
-            }
-            stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
-            return stringBuilder.toString();
-        } catch (Exception e) {
-            saveInLog("Run server GUI"); // рекурсивно создаю файл
-            return readLog();
-        }
-
+    public FileManager getMessageStorage() {
+        return messageStorage;
     }
-
-    public void saveInMessage(String message) {
-        try (FileWriter writer = new FileWriter(ALL_MESSAGE_FILE_PATH, true)) {
-            writer.write(getDateTime() + " " + message);
-            writer.write("\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Считывание содержимого файла сообщений
-     *
-     * @return
-     */
-    public String readMessage() {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (FileReader reader = new FileReader(ALL_MESSAGE_FILE_PATH);) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                stringBuilder.append((char) c);
-            }
-            stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
-            return stringBuilder.toString();
-        } catch (Exception e) {
-            saveInMessage(""); // рекурсивно создаю файл
-            return readLog();
-        }
-
-    }
-
 }

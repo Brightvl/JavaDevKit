@@ -29,17 +29,8 @@ public class ServerGUI extends JFrame implements ViewServer {
         this.serverLog = new ServerLogPanel();
 
 
-        //region параметры окна
-        setTitle("Server ver. 0.00000000000002"); // название окна
+        settingWindow();
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
-        setLocationRelativeTo(null); // по центру экрана
-        setResizable(false); // запрет на растягивание окна
-        //endregion
-
-
-        //region расположение виджетов
 
         JPanel mainPanel = new JPanel(new GridLayout(0, 2));
         // создание кнопок
@@ -49,12 +40,22 @@ public class ServerGUI extends JFrame implements ViewServer {
         add(serverLog);
         add(mainPanel, BorderLayout.SOUTH);
 
-        //endregion
+
 
         serverLog.serverLogUpdate(getLogMessage());
         super.setVisible(true);
     }
+
+    private void settingWindow() {
+        setTitle("Server ver. 0.00000000000002"); // название окна
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(WIDTH, HEIGHT);
+        setLocationRelativeTo(null); // по центру экрана
+        setResizable(false); // запрет на растягивание окна
+    }
     //endregion
+
 
     //region Виджеты
 
@@ -68,14 +69,7 @@ public class ServerGUI extends JFrame implements ViewServer {
         serverRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!server.isRun()) {
-                    server.setRun(true);
-                    serverLogUpdate("[Server] launched");
-                } else {
-                    serverLogUpdate("[Server] already run");
-                }
-                server.setRun(true);
-
+                runServer();
             }
         });
         return serverRun;
@@ -93,16 +87,14 @@ public class ServerGUI extends JFrame implements ViewServer {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                serverLogUpdate("[Server] stopped");
-                server.stopClientGUI();
+                stopServer();
+
             }
         });
         return serverStop;
     }
     //endregion
 
-
-    //region Логика сообщений
     /**
      * Сохраняет сообщения в лог файле и обновляет их на экране
      * @param text текст из фала логов
@@ -113,11 +105,11 @@ public class ServerGUI extends JFrame implements ViewServer {
     }
 
     public void saveInLog(String message) {
-        server.saveInLog(message);
+        server.getLogger().save(message);
     }
 
     public String getLogMessage() {
-        return server.readLog();
+        return server.getLogger().load();
     }
 
     @Override
@@ -127,9 +119,32 @@ public class ServerGUI extends JFrame implements ViewServer {
 
     @Override
     public void runServer() {
+        if (!server.isRun()) {
+            server.setRun(true);
+            serverLogUpdate("[Server] launched");
+        } else {
+            serverLogUpdate("[Server] already run");
+        }
+        server.setRun(true);
+
+        serverLog.setVisible(true);
+    }
+
+    @Override
+    public void stopServer() {
+        serverLogUpdate("[Server] stopped");
+        if (server.isRun()) {
+            showNotification("Сервер остановлен");
+        }
+        server.stopClientGUI();
+        serverLog.setVisible(false);
 
     }
 
+    @Override
+    public void showNotification(String message) {
+        JOptionPane.showMessageDialog(this,message);
+    }
 
-    //endregion
+
 }

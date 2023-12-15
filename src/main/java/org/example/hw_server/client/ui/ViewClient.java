@@ -4,6 +4,5 @@ public interface ViewClient {
     void sendMessage(String message) ;
     void connectedToServer();
     void disconnectedFromServer() ;
-
     void showNotification(String message);
 }
