@@ -198,7 +198,7 @@ public class Server {
             stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
             return stringBuilder.toString();
         } catch (Exception e) {
-            saveInLog(""); // рекурсивно создаю файл
+            saveInLog("Run server GUI"); // рекурсивно создаю файл
             return readLog();
         }
 
