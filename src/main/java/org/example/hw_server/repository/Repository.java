@@ -4,5 +4,9 @@ import java.util.List;
 
 public interface Repository {
 
+    /**
+     * Получить пользователя
+     * @return
+     */
     List<User> getUser();
 }

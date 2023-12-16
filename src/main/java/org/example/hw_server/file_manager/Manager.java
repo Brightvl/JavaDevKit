@@ -27,6 +27,10 @@ public class Manager implements FileManager {
         return '['+currentDateTime.format(formatter)+']';
     }
 
+    /**
+     * Загружает из файла
+     * @return строку с текстом
+     */
     @Override
     public String  load() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -44,6 +48,10 @@ public class Manager implements FileManager {
 
     }
 
+    /**
+     * Сохраняет в файл
+     * @param text текст
+     */
     @Override
     public void save(String text) {
         try (FileWriter writer = new FileWriter(fileName, true)) {

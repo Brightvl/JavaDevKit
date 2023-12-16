@@ -6,29 +6,27 @@ import org.example.hw_server.client.ui.widgets.MessageDisplayWindowPanel;
 import org.example.hw_server.client.ui.widgets.SendMessagePanel;
 import org.example.hw_server.client.ui.widgets.VerificationPanel;
 import org.example.hw_server.server.Server;
-import org.example.hw_server.repository.User;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ClientGUI extends JFrame implements ViewClient {
 
-
-    private User user;
-
+    //region Поля
     // размеры окна
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
-
-
+    // виджеты
     private final MessageDisplayWindowPanel messageDisplayWindowPanel;
-
     private final JPanel mainPanel;
 
+    //зависимости
     private Client client;
+    //endregion
 
 
+    //region Конструктор
     /**
      * Конструктор
      * @param server сервер
@@ -36,20 +34,44 @@ public class ClientGUI extends JFrame implements ViewClient {
     private ClientGUI(Server server) {
         this.client = new Client(this, server);
 
-
+        //виджеты
         this.mainPanel = new JPanel(new BorderLayout(2, 1));
         this.messageDisplayWindowPanel = new MessageDisplayWindowPanel(this);
 
         // задаем параметры окна
-        settingWindow();
+        getSettingWindow();
         //выводит панель верификации
-        clientAutonomization();
+        clientUpdate();
     }
+
+    /**
+     * Задает параметры клиентского окна
+     */
+    private void getSettingWindow() {
+        setTitle("General chat"); // название окна
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(WIDTH, HEIGHT);
+        setResizable(false); // запрет на растягивание окна
+    }
+
+    /**
+     * Фабричный метод для создания объекта и отображения окна
+     */
+    public static void createClientGUI(Server server, Point pointWindow, int indentX, int indentY) {
+        // Создаем новое окно клиента
+        ClientGUI clientGUI = new ClientGUI(server);
+        // сдвиг окна клиента относительно координат
+        int x = (int) pointWindow.getX();
+        int y = (int) pointWindow.getY();
+        clientGUI.setLocation(x + indentX, y + indentY);
+        clientGUI.setVisible(true);
+    }
+    //endregion
 
     /**
      * Логика GUI
      */
-    public void clientAutonomization() {
+    public void clientUpdate() {
         if (client.checkServerStartup()) {
             if (!client.isAuthorized()) {
                 createVerificationPanel();
@@ -57,21 +79,11 @@ public class ClientGUI extends JFrame implements ViewClient {
 
         } else {
             if (client.isAuthorized()) {
-                showNotification("Сервер не отвечает");
+                showNotification("Server is not responding");
                 client.setAuthorized(false);
             }
             createVerificationPanel();
         }
-    }
-
-    /**
-     * Задает параметры клиентского окна
-     */
-    private void settingWindow() {
-        setTitle("General chat"); // название окна
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(WIDTH, HEIGHT);
-        setResizable(false); // запрет на растягивание окна
     }
 
     /**
@@ -105,63 +117,72 @@ public class ClientGUI extends JFrame implements ViewClient {
     }
 
     /**
-     * Фабричный метод для создания объекта и отображения окна
+     * Принимает сообщение от клиента
+     * @return сообщение
      */
-    public static void createClientGUI(Server server, Point pointWindow, int indentX, int indentY) {
-        // Создаем новое окно клиента
-        ClientGUI clientGUI = new ClientGUI(server);
+    public String getMessage() {
+        return client.getMessage();
+    }
 
-        // сдвиг окна клиента относительно координат
-        int x = (int) pointWindow.getX();
-        int y = (int) pointWindow.getY();
-        clientGUI.setLocation(x + indentX, y + indentY);
-
-        clientGUI.setVisible(true);
-
+    /**
+     * Передает сообщение клиенту
+     * @param message сообщение
+     */
+    public void appendMessage(String message) {
+        client.appendMessage(message);
     }
 
     /**
      * Выдает уведомление
-     * @param message
+     * @param message сообщение
      */
+    @Override
     public void showNotification(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
 
+    /**
+     * Отображение сообщения в диалоговом окне
+     * @param message сообщение
+     */
     @Override
     public void sendMessage(String message) {
         messageDisplayWindowPanel.sendMessage(message);
     }
 
-    public String getMessage() {
-        return client.getMessage();
-    }
-
-    public void appendMessage(String message) {
-        client.appendMessage(message);
-    }
-
-
+    /**
+     * Подключение к серверу
+     */
     @Override
     public void connectedToServer() {
-        clientAutonomization();
+        clientUpdate();
     }
 
+    /**
+     * Отключение от сервера
+     */
     @Override
     public void disconnectedFromServer() {
-        clientAutonomization();
+        clientUpdate();
     }
 
+    /**
+     * Принимает Ip адрес от сервера
+     * @return строка
+     */
     public String getIp() {
         return client.getIp();
     }
 
+    /**
+     * Передает введенные параметры авторизации клиенту
+     * @param ipAddress адресс
+     * @param port порт
+     * @param login логин
+     * @param password пароль
+     */
     public void verification(String ipAddress, String port, String login, String password) {
         client.checkVerification(ipAddress,port,login,password);
     }
 
-
-
-
-    //endregion
 }

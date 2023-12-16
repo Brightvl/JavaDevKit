@@ -9,14 +9,10 @@ import org.example.hw_server.repository.User;
 import org.example.hw_server.server.ui.ServerGUI;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
-
-
     // адрес сервера
     private final String ipAddress = "192.168.168.255";
     private static String port = "8.8.8.8";
@@ -36,8 +32,6 @@ public class Server {
     private final Repository repository;
     private ViewServer viewServer;
 
-
-
     /**
      * Конструктор
      */
@@ -47,9 +41,7 @@ public class Server {
         this.repository = new LocalRepository();
         this.logger = new Manager(LOG_FILE_PATH);
         this.messageStorage = new Manager(ALL_MESSAGE_FILE_PATH);
-
-
-        viewServer = new ServerGUI(this);
+        this.viewServer = new ServerGUI(this);
     }
 
 
@@ -129,21 +121,29 @@ public class Server {
         sendMessageToGeneralChat();
     }
 
-
+    /**
+     * Действия при остановке клиента
+     */
     public void stopClientGUI() {
         this.run = false;
         for (Client client : clients
         ) {
             client.disconnectedFromServer();
         }
-
     }
 
-
+    /**
+     * Добавляет клиент в список
+     * @param client Client
+     */
     public void addClient(Client client) {
         clients.add(client);
     }
 
+    /**
+     *
+     * @return
+     */
     public ServerGUI getServerGUI() {
         return (ServerGUI) viewServer;
     }
@@ -168,24 +168,23 @@ public class Server {
         this.run = run;
     }
 
-    /**
-     * Создает форматированное время
-     *
-     * @return время в формате dd/MM/yy HH:mm
-     */
-    private String getDateTime() {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        // Задаем формат даты и времени
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
-        // Форматируем текущую дату и время
-        return '['+currentDateTime.format(formatter)+']';
-    }
-
     public FileManager getLogger() {
         return logger;
     }
 
-    public FileManager getMessageStorage() {
-        return messageStorage;
+    /**
+     * Сохраняет сообщение в логах
+     * @param message сообщение
+     */
+    public void saveInLog(String message) {
+        getLogger().save(message);
+    }
+
+    /**
+     * Получает сообщение из log файла
+     * @return сообщение
+     */
+    public String getLogMessage() {
+        return getLogger().load();
     }
 }
