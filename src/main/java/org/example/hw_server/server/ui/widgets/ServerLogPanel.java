@@ -2,6 +2,10 @@ package org.example.hw_server.server.ui.widgets;
 
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +17,9 @@ public class ServerLogPanel extends JPanel {
 
 
     // виджеты
-    private final JScrollPane scrollPane;
     private final JTextArea logTextArea;
+    private final JScrollPane scrollPane;
+
 
 
     public ServerLogPanel() {
@@ -30,11 +35,12 @@ public class ServerLogPanel extends JPanel {
 
         // Добавляем текстовое поле в панель для скроллинга
         scrollPane = new JScrollPane(logTextArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
 
         //добавляем виджеты
         add((new JLabel("Server log: ", JLabel.CENTER)), BorderLayout.NORTH); // Название окна логов
         add(scrollPane, BorderLayout.CENTER);
+
 
         setVisible(false);
     }
@@ -46,12 +52,10 @@ public class ServerLogPanel extends JPanel {
      * @param text текст логов
      */
     public void serverLogUpdate(String text) {
+        JScrollBar verticalScrollBar;verticalScrollBar = scrollPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(scrollPane.getVerticalScrollBar().getMaximum());
         this.logMessages.add(text);
         logTextArea.setText(text);
-
-        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 
         repaint();
     }
