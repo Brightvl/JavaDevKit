@@ -1,49 +1,47 @@
 package org.example.hw_server.server;
 
-import org.example.hw_server.client.ui.ClientGUI;
+import org.example.hw_server.client.Client;
+import org.example.hw_server.file_manager.FileManager;
+import org.example.hw_server.file_manager.Manager;
 import org.example.hw_server.repository.LocalRepository;
 import org.example.hw_server.repository.Repository;
+import org.example.hw_server.repository.User;
 import org.example.hw_server.server.ui.ServerGUI;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
-
-
     // адрес сервера
-    private static final String ipAddress = "192.168.168.255";
-    private static final String port = "8.8.8.8";
+    private final String ipAddress = "192.168.168.255";
+    private static String port = "8.8.8.8";
 
     // состояние
-    private boolean isServerWorking;
+    private boolean run;
 
-    // хранилища
-    private final List<ClientGUI> clientGUIs;
+    //пути
+    private final File LOG_FILE_PATH = new File("src/main/java/org/example/hw_server/file_manager/data/log.txt");
+    private FileManager logger;
+    private final File ALL_MESSAGE_FILE_PATH = new File("src/main/java/org/example/hw_server/file_manager/data/all_message.txt");
+    private FileManager messageStorage;
+
+
+    // зависимости
+    private final List<Client> clients;
     private final Repository repository;
-
-
-    private final File LOG_FILE_PATH = new File("src/main/java/org/example/hw_server/data/log.txt");
-    private final File ALL_MESSAGE_FILE_PATH = new File("src/main/java/org/example/hw_server/data/all_message.txt");
-
-    //окно клиента
-    private final ServerGUI serverGUI;
-
+    private ViewServer viewServer;
 
     /**
      * Конструктор
      */
     public Server() {
-        this.isServerWorking = false;
-        this.clientGUIs = new ArrayList<>();
+        this.run = false;
+        this.clients = new ArrayList<>();
         this.repository = new LocalRepository();
-
-        serverGUI = new ServerGUI(this);
+        this.logger = new Manager(LOG_FILE_PATH);
+        this.messageStorage = new Manager(ALL_MESSAGE_FILE_PATH);
+        this.viewServer = new ServerGUI(this);
     }
 
 
@@ -57,15 +55,14 @@ public class Server {
      * @return значение ошибки
      */
     public int checkVerification(String ipAddress, String port, String login, String password) {
-
-        if (!ipAddress.equals(Server.ipAddress)) return 1;
+        if (!ipAddress.equals(ipAddress)) return 1;
         if (!port.equals(Server.port)) return 2;
         User user = findByLogin(login);
 
         if (user == null) return 3;
         if (!(user.getLogin().equalsIgnoreCase(login) &&
                 user.getPassword().equalsIgnoreCase(password))) return 4;
-        appendMessageToServerLog("User verification " + login + " was successful");
+        appendMessageToServerLog("[" + login + "]: verification was successful");
         return 0;
     }
 
@@ -87,22 +84,30 @@ public class Server {
 
     /**
      * Получает сообщение отправленное клиентом и добавляет его в общий чат
-     *
-     * @param message отправленное клиентом сообщение
      */
-    public void appendMessageToGeneralChat(String message) {
-        for (ClientGUI clientGUI : clientGUIs
+    public String getMessage() {
+        return messageStorage.load();
+    }
+
+    /**
+     * Получает сообщение отправленное клиентом и добавляет его в общий чат
+     */
+    public void sendMessageToGeneralChat() {
+        for (Client client : clients
         ) {
-            clientGUI.appendReceiveMessage(message);
+            client.sendMessage(messageStorage.load());
         }
     }
+
+
 
     /**
      * Добавляет отправленное сообщение в логи сервера
      * @param message сообщение
      */
     private void appendMessageToServerLog(String message) {
-        serverGUI.serverLogUpdate(message);
+        logger.save(message);
+        viewServer.showLog(logger.load());
     }
 
     /**
@@ -110,128 +115,76 @@ public class Server {
      * @param message сообщение
      */
     public void appendUserMessage(User user, String message) {
-        appendMessageToServerLog("User " + user.getLogin() + " wrote " + message + " in general chat");
+        appendMessageToServerLog("[" + user.getLogin() + "] sent {" + message + "} in general chat");
 
-        saveInMessage(message);
-        appendMessageToGeneralChat(readMessage());
+        messageStorage.save("[" + user.getLogin() + "]: " + message);
+        sendMessageToGeneralChat();
     }
 
-
+    /**
+     * Действия при остановке клиента
+     */
     public void stopClientGUI() {
-        this.isServerWorking = false;
-        for (ClientGUI clientGUI : clientGUIs
+        this.run = false;
+        for (Client client : clients
         ) {
-            clientGUI.clientAutonomization();
+            client.disconnectedFromServer();
         }
-
     }
 
-
-    public void addClient(ClientGUI clientGUI) {
-        clientGUIs.add(clientGUI);
+    /**
+     * Добавляет клиент в список
+     * @param client Client
+     */
+    public void addClient(Client client) {
+        clients.add(client);
     }
 
+    /**
+     *
+     * @return
+     */
     public ServerGUI getServerGUI() {
-        return serverGUI;
+        return (ServerGUI) viewServer;
     }
 
-    public static String getIpAddress() {
+    public String getIpAddress() {
         return ipAddress;
     }
 
     /**
      * @return Возвращает bool значение состояния сервера
      */
-    public boolean isServerWorking() {
-        return isServerWorking;
+    public boolean isRun() {
+        return run;
     }
 
     /**
      * Меняет значение состояния сервера
      *
-     * @param serverWorking boolean
+     * @param run boolean
      */
-    public void setServerWorking(boolean serverWorking) {
-        isServerWorking = serverWorking;
+    public void setRun(boolean run) {
+        this.run = run;
+    }
+
+    public FileManager getLogger() {
+        return logger;
     }
 
     /**
-     * Создает форматированное время
-     *
-     * @return время в формате dd/MM/yy HH:mm
-     */
-    private String getDateTime() {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        // Задаем формат даты и времени
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm");
-        // Форматируем текущую дату и время
-        return '['+currentDateTime.format(formatter)+']';
-    }
-
-    /**
-     * Запись содержимого в файл
-     *
+     * Сохраняет сообщение в логах
      * @param message сообщение
      */
     public void saveInLog(String message) {
-
-        try (FileWriter writer = new FileWriter(LOG_FILE_PATH, true)) {
-            writer.write(getDateTime() + ": " + message);
-            writer.write("\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        getLogger().save(message);
     }
 
     /**
-     * Считывание содержимого файла
-     *
-     * @return
+     * Получает сообщение из log файла
+     * @return сообщение
      */
-    public String readLog() {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (FileReader reader = new FileReader(LOG_FILE_PATH);) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                stringBuilder.append((char) c);
-            }
-            stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
-            return stringBuilder.toString();
-        } catch (Exception e) {
-            saveInLog(""); // рекурсивно создаю файл
-            return readLog();
-        }
-
+    public String getLogMessage() {
+        return getLogger().load();
     }
-
-    public void saveInMessage(String message) {
-        try (FileWriter writer = new FileWriter(ALL_MESSAGE_FILE_PATH, true)) {
-            writer.write(getDateTime() + ": " + message);
-            writer.write("\n");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Считывание содержимого файла сообщений
-     *
-     * @return
-     */
-    public String readMessage() {
-        StringBuilder stringBuilder = new StringBuilder();
-        try (FileReader reader = new FileReader(ALL_MESSAGE_FILE_PATH);) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                stringBuilder.append((char) c);
-            }
-            stringBuilder.delete(stringBuilder.length() - 1, stringBuilder.length());
-            return stringBuilder.toString();
-        } catch (Exception e) {
-            saveInMessage(""); // рекурсивно создаю файл
-            return readLog();
-        }
-
-    }
-
 }

@@ -1,7 +1,5 @@
 package org.example.hw_server.repository;
 
-import org.example.hw_server.server.User;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +8,8 @@ public class LocalRepository implements Repository{
 
     public LocalRepository() {
         this.userList = new ArrayList<>();
-        userList.add(new User("Andrei","1234"));
-        userList.add(new User("Nikolai","4321"));
+        userList.add(new User("1","1"));
+        userList.add(new User("2","2"));
     }
 
     public List<User> getUser() {

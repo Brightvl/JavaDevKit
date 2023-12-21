@@ -1,7 +1,7 @@
 package org.example.hw_server.server.ui;
 
 import org.example.hw_server.server.Server;
-import org.example.hw_server.server.User;
+import org.example.hw_server.server.ViewServer;
 import org.example.hw_server.server.ui.widgets.ServerLogPanel;
 
 import javax.swing.*;
@@ -10,36 +10,52 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
 
-public class ServerGUI extends JFrame {
+public class ServerGUI extends JFrame implements ViewServer {
 
+    //region Поля
+    //зависимости
     private final Server server;
-
-    Date date = new Date();
 
     // размеры окна
     private static final int WIDTH = 400;
     private static final int HEIGHT = 507;
 
+    //виджеты
     private final ServerLogPanel serverLog; // окно логирования
-
+    //endregion
 
     //region Конструктор
+
+    /**
+     * Constructor
+     * @param server сервер
+     */
     public ServerGUI(Server server) {
         this.server = server;
         this.serverLog = new ServerLogPanel();
 
+        getSettingWindow();
+        getWidgets();
 
-        //region параметры окна
-        setTitle("Server ver. 0.00000000000001"); // название окна
+        serverLog.serverLogUpdate(getLogMessage());
+        super.setVisible(true);
+    }
+
+    /**
+     * Настройки параметров окна
+     */
+    private void getSettingWindow() {
+        setTitle("Server ver. 0.00000000000002"); // название окна
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null); // по центру экрана
         setResizable(false); // запрет на растягивание окна
-        //endregion
+    }
 
-
-        //region расположение виджетов
-
+    /**
+     * Расположение виджетов
+     */
+    private void getWidgets() {
         JPanel mainPanel = new JPanel(new GridLayout(0, 2));
         // создание кнопок
         mainPanel.add(createServerRunButton());
@@ -47,12 +63,9 @@ public class ServerGUI extends JFrame {
         // расстановка
         add(serverLog);
         add(mainPanel, BorderLayout.SOUTH);
-
-        //endregion
-
-        serverLog.serverLogUpdate(server.readLog());
-        super.setVisible(true);
     }
+
+
     //endregion
 
     //region Виджеты
@@ -67,14 +80,7 @@ public class ServerGUI extends JFrame {
         serverRun.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!server.isServerWorking()) {
-                    server.setServerWorking(true);
-                    serverLogUpdate("Server launched");
-                } else {
-                    serverLogUpdate("Server already run");
-                }
-                server.setServerWorking(true);
-
+                runServer();
             }
         });
         return serverRun;
@@ -92,8 +98,8 @@ public class ServerGUI extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                serverLogUpdate("Server stopped");
-                server.stopClientGUI();
+                stopServer();
+
             }
         });
         return serverStop;
@@ -101,15 +107,77 @@ public class ServerGUI extends JFrame {
     //endregion
 
 
-    //region Логика сообщений
+
     /**
      * Сохраняет сообщения в лог файле и обновляет их на экране
      * @param text текст из фала логов
      */
     public void serverLogUpdate(String text) {
-        server.saveInLog(text);
-        serverLog.serverLogUpdate(server.readLog());
+        saveInLog(text);
+        showLog(getLogMessage());
     }
 
-    //endregion
+    /**
+     * Отдает события Ui серверу
+     * @param message сообщение
+     */
+    public void saveInLog(String message) {
+        server.saveInLog(message);
+    }
+
+    /**
+     * Получает сообщение от сервера для отображения
+     * @return сообщение
+     */
+    public String getLogMessage() {
+        return server.getLogMessage();
+    }
+
+    /**
+     * Выводит logs на экран
+     * @param message логи
+     */
+    @Override
+    public void showLog(String message) {
+        serverLog.serverLogUpdate(message);
+    }
+
+    /**
+     * Действия по запуску сервера
+     */
+    @Override
+    public void runServer() {
+        if (!server.isRun()) {
+            server.setRun(true);
+            serverLogUpdate("[Server] launched");
+        } else {
+            serverLogUpdate("[Server] already run");
+        }
+        server.setRun(true);
+
+        serverLog.setVisible(true);
+    }
+
+    /**
+     * Действия по остановке сервера
+     */
+    @Override
+    public void stopServer() {
+        serverLogUpdate("[Server] stopped");
+        if (server.isRun()) {
+            showNotification("Сервер остановлен");
+        }
+        server.stopClientGUI();
+        serverLog.setVisible(false);
+
+    }
+
+    /**
+     * Показать уведомление
+     * @param message сообщение
+     */
+    @Override
+    public void showNotification(String message) {
+        JOptionPane.showMessageDialog(this,message);
+    }
 }

@@ -190,7 +190,7 @@ public class VerificationPanel extends JPanel {
                 port = portTextField.getText();
                 login = loginTextField.getText();
                 password = passwordTextField.getText();
-                clientGUI.checkVerification(ipAddress, port, login, password);
+                clientGUI.verification(ipAddress, port, login, password);
             }
         });
         return authorizationButton;

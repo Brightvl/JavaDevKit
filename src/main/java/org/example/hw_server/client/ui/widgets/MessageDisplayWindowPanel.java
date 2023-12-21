@@ -10,43 +10,37 @@ import java.awt.*;
  */
 public class MessageDisplayWindowPanel extends JPanel {
 
-    private final JTextArea sendTextArea;
-    private final JTextArea receiveTextArea;
+    private final JTextArea textArea;
+    private  ClientGUI clientGUI;
+
+    JScrollPane scrollPane;
 
     /**
      * Конструктор
      */
     public MessageDisplayWindowPanel(ClientGUI clientGUI) {
+        this.clientGUI = clientGUI;
         // компоновщик
         setLayout(new BorderLayout(2, 1));
 
         // для отображения исходящих сообщений
-        sendTextArea = new JTextArea("\n\n");
-        sendTextArea.setEditable(false); // запрет редактирования
-        sendTextArea.setLineWrap(true);  // включить автоматический перенос строки
-        sendTextArea.setWrapStyleWord(true);  // включить автоматический перенос слов
-
-        // для отображения входящих сообщений
-        receiveTextArea = new JTextArea("Общий чат\n\n");
-        receiveTextArea.setEditable(false);
-        receiveTextArea.setLineWrap(true);
-        receiveTextArea.setWrapStyleWord(true);
-        receiveTextArea.setText(clientGUI.getReceiveText());
-
-        // разделяю поле для отправленных и принятых сообщений
-        JPanel jPanel = new JPanel(new GridLayout(1, 2));
-        jPanel.add(receiveTextArea);
-        jPanel.add(sendTextArea);
+        textArea = new JTextArea("\n\n");
+        textArea.setEditable(false); // запрет редактирования
+        textArea.setLineWrap(true);  // включить автоматический перенос строки
+        textArea.setWrapStyleWord(true);  // включить автоматический перенос слов
 
         // Добавляем текстовое поле в панель для скроллинга
-        // виджеты
-        JScrollPane scrollPane = new JScrollPane(jPanel);
+        this.scrollPane = new JScrollPane(textArea);
+
         scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+        repaint();
 
 
         // Добавляем виджеты
         add((new JLabel("General chat", JLabel.CENTER)), BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+
+        sendMessage();
     }
 
 
@@ -54,24 +48,28 @@ public class MessageDisplayWindowPanel extends JPanel {
      * Метод для вывода сообщения в поле отправленные сообщения
      * @param message отправленное сообщение
      */
-    public void appendSentMessage(String message) {
-        String tempMessage = message.trim();
-        if (!tempMessage.isEmpty()) {
-            sendTextArea.append(message + "\n");
+    public void sendMessage() {
+        String tempMessage = clientGUI.getMessage().trim();
 
+        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+
+        if (!tempMessage.isEmpty()) {
+            textArea.setText(tempMessage + "\n");
+            repaint();
         }
     }
 
     /**
-     * Метод для отображения принятого сообщения в общем чате
-     * @param message принятое сообщение
+     * Метод для вывода сообщения в поле отправленные сообщения
+     * @param message отправленное сообщение
      */
-    public void appendReceiveMessage(String message) {
+    public void sendMessage(String message) {
         String tempMessage = message.trim();
         if (!tempMessage.isEmpty()) {
-            receiveTextArea.setText(message);
+            textArea.setText(tempMessage + "\n");
+            repaint();
         }
-
     }
-
 }
