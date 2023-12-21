@@ -4,6 +4,8 @@ import org.example.hw_server.client.ui.ClientGUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Панель отображения сообщения чата
@@ -32,9 +34,6 @@ public class MessageDisplayWindowPanel extends JPanel {
         // Добавляем текстовое поле в панель для скроллинга
         this.scrollPane = new JScrollPane(textArea);
 
-        scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
-        repaint();
-
 
         // Добавляем виджеты
         add((new JLabel("General chat", JLabel.CENTER)), BorderLayout.NORTH);
@@ -46,7 +45,7 @@ public class MessageDisplayWindowPanel extends JPanel {
 
     /**
      * Метод для вывода сообщения в поле отправленные сообщения
-     * @param message отправленное сообщение
+
      */
     public void sendMessage() {
         String tempMessage = clientGUI.getMessage().trim();
@@ -59,6 +58,7 @@ public class MessageDisplayWindowPanel extends JPanel {
             textArea.setText(tempMessage + "\n");
             repaint();
         }
+
     }
 
     /**

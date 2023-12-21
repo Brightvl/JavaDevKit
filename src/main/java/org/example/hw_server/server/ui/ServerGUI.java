@@ -172,12 +172,10 @@ public class ServerGUI extends JFrame implements ViewServer {
 
     }
 
-    /**
-     * Показать уведомление
-     * @param message сообщение
-     */
     @Override
     public void showNotification(String message) {
         JOptionPane.showMessageDialog(this,message);
     }
+
+
 }
