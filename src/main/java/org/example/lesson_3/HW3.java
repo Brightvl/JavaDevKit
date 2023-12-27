@@ -38,7 +38,6 @@ public class HW3 {
  * divide(), subtract(). Параметры этих методов – два числа разного типа, над которыми должна быть произведена операция.
  */
 class Calculator {
-    // todo какой вариант решения будет верным?
     public static <T extends Integer, T2 extends Double> Double sum(T firstNum, T2 secondNum) {
 
         return firstNum.doubleValue() + secondNum.doubleValue();
@@ -71,7 +70,6 @@ class HWTask2 {
         if (firstArray.length != secondArray.length) {
             return false;
         }
-        // не понял как нужно через instanceof
         for (int i = 0; i < firstArray.length; i++) {
             if (!firstArray[i].getClass().isInstance(secondArray[i])) {
                 return false;
